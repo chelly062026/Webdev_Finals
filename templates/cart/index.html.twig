@@ -1,0 +1,90 @@
+{% extends 'shop/layout.html.twig' %}
+
+{% block title %}Your Cart - Chelswear{% endblock %}
+
+{% block shop_stylesheets %}
+<link rel="stylesheet" href="{{ asset('styles/cart.css') }}">
+{% endblock %}
+
+{% block shop_body %}
+<div class="shop-page cart-page">
+    <header class="shop-page-header">
+        <h1>Your Cart</h1>
+        <p>{% if items|length > 0 %}{{ cart_count }} item(s) in your cart{% else %}Your cart is empty{% endif %}</p>
+    </header>
+
+    {% if items|length > 0 %}
+        <form method="post" action="{{ path('app_cart_update') }}" id="cartUpdateForm">
+            <input type="hidden" name="_token" value="{{ csrf_token('cart_update') }}">
+
+            <div class="cart-table-wrap">
+                <table class="cart-table">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Price</th>
+                            <th>Qty</th>
+                            <th>Subtotal</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in items %}
+                            {% set product = item.product %}
+                            <tr>
+                                <td>
+                                    <a href="{{ path('app_shop_product_show', {id: product.id}) }}" class="cart-product-name">{{ product.name }}</a>
+                                </td>
+                                <td>₱{{ product.price|number_format(2, '.', ',') }}</td>
+                                <td>
+                                    <input
+                                        type="number"
+                                        name="quantities[{{ product.id }}]"
+                                        value="{{ item.quantity }}"
+                                        min="0"
+                                        max="{{ product.stock ?? 99 }}"
+                                        class="cart-qty-input"
+                                    >
+                                </td>
+                                <td>₱{{ item.subtotal|number_format(2, '.', ',') }}</td>
+                                <td>
+                                    <button
+                                        type="submit"
+                                        class="cart-remove-btn"
+                                        formaction="{{ path('app_cart_remove', {id: product.id}) }}"
+                                        formmethod="post"
+                                        name="_token"
+                                        value="{{ csrf_token('cart_remove' ~ product.id) }}"
+                                    >Remove</button>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="cart-summary">
+                <div class="cart-total-row">
+                    <span>Subtotal</span>
+                    <strong>₱{{ subtotal|number_format(2, '.', ',') }}</strong>
+                </div>
+                <div class="cart-actions">
+                    <button type="submit" class="btn-shop-view">Update Cart</button>
+                    <a href="{{ path('app_shop') }}" class="btn-shop-cart">Continue Shopping</a>
+                    <a href="{{ path('app_checkout') }}" class="btn-checkout">Proceed to Checkout</a>
+                </div>
+            </div>
+        </form>
+
+        <form method="post" action="{{ path('app_cart_clear') }}" class="cart-clear-form" onsubmit="return confirm('Clear your entire cart?');">
+            <input type="hidden" name="_token" value="{{ csrf_token('cart_clear') }}">
+            <button type="submit" class="cart-clear-btn">Clear Cart</button>
+        </form>
+    {% else %}
+        <div class="shop-empty">
+            <p>Looks like you have not added anything yet.</p>
+            <a href="{{ path('app_shop') }}" class="btn-shop-cart">Start Shopping</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

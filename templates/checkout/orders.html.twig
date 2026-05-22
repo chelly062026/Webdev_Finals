@@ -1,0 +1,40 @@
+{% extends 'shop/layout.html.twig' %}
+
+{% block title %}My Orders - Chelswear{% endblock %}
+
+{% block shop_stylesheets %}
+<link rel="stylesheet" href="{{ asset('styles/checkout.css') }}">
+{% endblock %}
+
+{% block shop_body %}
+<div class="shop-page">
+    <header class="shop-page-header">
+        <h1>My Orders</h1>
+        <p>Track your past purchases.</p>
+    </header>
+
+    {% if orders|length > 0 %}
+        <div class="my-orders-list">
+            {% for order in orders %}
+                <article class="my-order-card">
+                    <div class="my-order-head">
+                        <span class="my-order-id">Order #{{ order.id }}</span>
+                        <span class="my-order-status status-{{ order.status }}">{{ order.status|capitalize }}</span>
+                    </div>
+                    <p class="my-order-date">{{ order.createdAt|date('M d, Y g:i A') }}</p>
+                    <p class="my-order-desc">{{ order.description|slice(0, 120) }}{% if order.description|length > 120 %}...{% endif %}</p>
+                    <div class="my-order-foot">
+                        <strong>₱{{ order.totalAmount|number_format(2, '.', ',') }}</strong>
+                        <a href="{{ path('app_my_order_show', {id: order.id}) }}" class="btn-shop-view">Details</a>
+                    </div>
+                </article>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="shop-empty">
+            <p>You have not placed any orders yet.</p>
+            <a href="{{ path('app_shop') }}" class="btn-shop-cart">Start Shopping</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

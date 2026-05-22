@@ -1,0 +1,28 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Account Not Verified{% endblock %}
+
+{% block body %}
+<div class="container text-center mt-5">
+    <h1 class="display-1">404</h1>
+    <h2>Account Verification Required</h2>
+    
+    <p class="lead">
+        It looks like your account hasn't been verified yet. 
+        Please check your email for the verification link.
+    </p>
+
+    <div class="mt-4">
+        <p>Didn't receive the email?</p>
+        {# Assuming you have a route to resend verification #}
+     	<p>
+			<a href="{{ verificationUrl }}" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px;">
+				Verify Email Address
+			</a>
+		</p>
+    </div>
+
+    <hr>
+    <a href="{{ path('app_homepage') }}">Back to Home</a>
+</div>
+{% endblock %}

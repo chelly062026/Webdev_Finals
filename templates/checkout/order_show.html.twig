@@ -1,0 +1,48 @@
+{% extends 'shop/layout.html.twig' %}
+
+{% block title %}Order #{{ order.id }} - Chelswear{% endblock %}
+
+{% block shop_stylesheets %}
+<link rel="stylesheet" href="{{ asset('styles/checkout.css') }}">
+{% endblock %}
+
+{% block shop_body %}
+<div class="shop-page">
+    <a href="{{ path('app_my_orders') }}" class="shop-back-link">&larr; My Orders</a>
+
+    <div class="checkout-order-detail">
+        <header class="shop-page-header">
+            <h1>Order #{{ order.id }}</h1>
+            <p>Placed on {{ order.createdAt|date('F d, Y \\a\\t g:i A') }}</p>
+        </header>
+
+        <dl class="order-detail-grid">
+            <dt>Status</dt>
+            <dd><span class="my-order-status status-{{ order.status }}">{{ order.status|capitalize }}</span></dd>
+            <dt>Total</dt>
+            <dd>₱{{ order.totalAmount|number_format(2, '.', ',') }}</dd>
+            <dt>Quantity</dt>
+            <dd>{{ order.quantity }} item(s)</dd>
+            <dt>Items</dt>
+            <dd>{{ order.description }}</dd>
+            {% if order.customer %}
+                <dt>Customer</dt>
+                <dd>{{ order.customer.name }}</dd>
+                <dt>Email</dt>
+                <dd>{{ order.customer.email }}</dd>
+                <dt>Phone</dt>
+                <dd>{{ order.customer.phoneNumber }}</dd>
+            {% endif %}
+        </dl>
+
+        <h2 class="order-products-heading">Products</h2>
+        <ul class="order-products-list">
+            {% for product in order.product %}
+                <li>{{ product.name }} — ₱{{ product.price|number_format(2, '.', ',') }}</li>
+            {% endfor %}
+        </ul>
+
+        <a href="{{ path('app_shop') }}" class="btn-shop-cart">Shop Again</a>
+    </div>
+</div>
+{% endblock %}

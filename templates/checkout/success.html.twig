@@ -1,0 +1,33 @@
+{% extends 'shop/layout.html.twig' %}
+
+{% block title %}Order Confirmed - Chelswear{% endblock %}
+
+{% block shop_stylesheets %}
+<link rel="stylesheet" href="{{ asset('styles/checkout.css') }}">
+{% endblock %}
+
+{% block shop_body %}
+<div class="shop-page checkout-success">
+    <div class="checkout-success-card">
+        <div class="checkout-success-icon">✓</div>
+        <h1>Thank you for your order!</h1>
+        <p>Your order <strong>#{{ order.id }}</strong> has been placed and is <strong>{{ order.status }}</strong>.</p>
+
+        <dl class="checkout-success-details">
+            <dt>Total</dt>
+            <dd>₱{{ order.totalAmount|number_format(2, '.', ',') }}</dd>
+            <dt>Items</dt>
+            <dd>{{ order.description }}</dd>
+            {% if order.customer %}
+                <dt>Phone</dt>
+                <dd>{{ order.customer.phoneNumber }}</dd>
+            {% endif %}
+        </dl>
+
+        <div class="checkout-success-actions">
+            <a href="{{ path('app_my_order_show', {id: order.id}) }}" class="btn-shop-view">View Order</a>
+            <a href="{{ path('app_shop') }}" class="btn-shop-cart">Continue Shopping</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,111 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Customer index{% endblock %}
+{% block body %}
+
+<link rel="stylesheet" href="{{ asset('styles/dashboardcustomerindex.css') }}">
+
+    <div class="container-fluid">
+        <div class="page-header">
+            <div class="header-content">
+                <h1>Customer Management</h1>
+                <p>Manage your customer database and information</p>
+            </div>
+            <div class="header-actions">
+                {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_STAFF') %}
+                    <a href="{{ path('app_customer_new') }}" class="btn btn-primary">
+                        <i data-feather="plus-circle" class="me-2"></i>Create New Customer
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="table-container">
+            <table id="customerTable" class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Phone Number</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for customer in customers %}
+                    <tr>
+                        <td><strong>#{{ customer.id }}</strong></td>
+                        <td>{{ customer.name }}</td>
+                        <td>{{ customer.email }}</td>
+                        <td>{{ customer.phoneNumber }}</td>
+                        <td>
+                            <div class="action-buttons">
+                                <a href="{{ path('app_customer_show', {'id': customer.id}) }}" class="btn btn-sm btn-info action-btn" title="View Details">
+                                    <i data-feather="eye"></i> View
+                                </a>
+
+                                {% set createdBy = customer.createdBy is defined ? customer.createdBy : null %}
+                                {% set createdByAdmin = createdBy and createdBy.roles is defined and 'ROLE_ADMIN' in createdBy.roles %}
+                                {% set createdByCurrentUser = app.user and createdBy and createdBy.id is defined and createdBy.id == app.user.id %}
+                                {% set canManageCustomer = is_granted('ROLE_ADMIN') or createdByCurrentUser or (is_granted('ROLE_STAFF') and createdByAdmin) %}
+
+                                {% if canManageCustomer %}
+                                    <a href="{{ path('app_customer_edit', {'id': customer.id}) }}" class="btn btn-sm btn-warning action-btn" title="Edit Customer">
+                                        <i data-feather="edit"></i> Edit
+                                    </a>
+                                    <form method="POST" action="{{ path('app_customer_delete', {'id': customer.id}) }}" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this customer?');">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ customer.id) }}">
+                                        <button type="submit" class="btn btn-sm btn-danger action-btn" title="Delete Customer">
+                                            <i data-feather="trash"></i> Delete
+                                        </button>
+                                    </form>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center">
+                            <i data-feather="inbox" class="mb-3" style="color: #d1d5db; width: 48px; height: 48px;"></i>
+                            <p>No customers found. Click "Create New Customer" to add your first customer.</p>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <script src="https://unpkg.com/feather-icons/dist/feather.min.js"></script>
+    <script>
+        feather.replace();
+    </script>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            let table = new DataTable('#customerTable', {
+                responsive: true,
+                pageLength: 10,
+                lengthMenu: [[5, 10, 25, 50, -1], [5, 10, 25, 50, "All"]],
+                order: [[0, 'desc']],
+                language: {
+                    search: "Search customers:",
+                    lengthMenu: "Show _MENU_ entries",
+                    info: "Showing _START_ to _END_ of _TOTAL_ entries",
+                    zeroRecords: "No matching customers found",
+                    paginate: {
+                        first: "First",
+                        last: "Last",
+                        next: "Next",
+                        previous: "Previous"
+                    }
+                },
+                columnDefs: [
+                    { orderable: false, targets: 4 } // Disable sorting on Actions column
+                ]
+            });
+        });
+    </script>
+{% endblock %}

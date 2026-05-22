@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Admin Dashboard{% endblock %}</title>
+    
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.3.5/css/dataTables.dataTables.min.css">
+    
+    <!-- Your custom styles -->
+    <link rel="stylesheet" href="{{ asset('styles/global.css') }}">
+    <link rel="stylesheet" href="{{ asset('styles/base.css') }}">
+    
+    {% block stylesheets %}{% endblock %}
+</head>
+<body {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_STAFF') %}class="with-sidebar"{% endif %}>
+
+{% if is_granted('ROLE_ADMIN') or is_granted('ROLE_STAFF') %}
+<!-- Mobile Navbar with Burger Menu -->
+<nav class="navbar-mobile">
+    <button class="burger-btn" id="burgerBtn" aria-label="Toggle navigation">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+    </button>
+</nav>
+
+<!-- Sidebar Overlay for Mobile -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- Sidebar -->
+<div class="sidebar" id="sidebar">
+    <div class="logo-box">
+        <img src="{{ asset('logo/final.png') }}" alt="Logo" style=" height: 50%; width: 50%;">
+    </div>
+
+    <h4>
+        {% if is_granted('ROLE_ADMIN') %}
+            Admin
+        {% elseif is_granted('ROLE_STAFF') %}
+            Staff Dashboard
+        {% else %}
+            User Dashboard
+        {% endif %}
+    </h4>
+
+    <a href="{{ path('app_dashboard') }}">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="7" height="7"></rect>
+            <rect x="14" y="3" width="7" height="7"></rect>
+            <rect x="14" y="14" width="7" height="7"></rect>
+            <rect x="3" y="14" width="7" height="7"></rect>
+        </svg>
+        Dashboard
+    </a>
+
+    {# <a href="{{ path('app_homepage') }}">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+        </svg>
+        Home
+    </a> #}
+
+    {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_STAFF') %}
+    <a href="{{ path('app_customer_index') }}">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+        </svg>
+        Customer
+    </a>
+
+    <a href="{{ path('app_product_index') }}">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="9" cy="9" r="7"></circle>
+            <path d="M21 21l-4.35-4.35"></path>
+            <path d="M9 12v-2m0 0V8m0 2H7m2 0h2"></path>
+        </svg>
+        Product
+    </a>
+
+    <a href="{{ path('app_order_index') }}">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 2v6h6V2"></path>
+            <path d="M4 8h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V10a2 2 0 0 1 2-2z"></path>
+            <line x1="8" y1="14" x2="8.01" y2="14"></line>
+            <line x1="12" y1="14" x2="12.01" y2="14"></line>
+            <line x1="16" y1="14" x2="16.01" y2="14"></line>
+        </svg>
+        Order
+    </a>
+    {% endif %}
+
+    {% if is_granted('ROLE_ADMIN') %}
+    <a href="{{ path('app_user_index') }}">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+        </svg>
+        User Management
+    </a>
+
+    <a href="{{ path('app_activity_log_index') }}">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2v20"></path>
+            <path d="M2 12h20"></path>
+            <path d="M4 4l16 16"></path>
+            <path d="M4 20l16-16"></path>
+        </svg>
+        Activity Logs
+    </a>
+    <a href="{{ path('app_stock_log_index') }}">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 6h18"></path>
+            <path d="M3 12h18"></path>
+            <path d="M3 18h18"></path>
+        </svg>
+        Stock Log
+    </a>
+    {% endif %}
+
+    {# Logout #}
+    <form action="{{ path('app_logout') }}" method="post" class="sidebar-logout">
+        <input type="hidden" name="_csrf_token" value="{{ csrf_token('logout') }}">
+        <button type="submit" class="logout-btn">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M16 17l5-5-5-5"></path>
+                <path d="M21 12H9"></path>
+                <path d="M13 19H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h8"></path>
+            </svg>
+            Logout
+        </button>
+    </form>
+</div> 
+
+{% endif %}
+
+<!-- Main content -->
+<div class="content">
+    <!-- Flash Messages -->
+    {% for type, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="alert alert-{{ type }} alert-dismissible fade show" role="alert">
+                <i data-feather="{{ type == 'success' ? 'check-circle' : 'alert-circle' }}"></i> {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endfor %}
+
+    {% block body %}{% endblock %}
+</div>
+
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+<!-- DataTables JS -->
+<script src="https://cdn.datatables.net/2.3.5/js/dataTables.min.js"></script>
+
+<!-- NO AUTO-INITIALIZATION CODE HERE - This was causing the error -->
+
+{% block javascripts %}{% endblock %}
+
+<!-- Feather Icons -->
+<script src="https://unpkg.com/feather-icons/dist/feather.min.js"></script>
+<script>
+    // Initialize Feather icons
+    feather.replace();
+
+    // Mobile Burger Menu Handler
+    (function() {
+        const burgerBtn = document.getElementById('burgerBtn');
+        const sidebar = document.getElementById('sidebar');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+        const navbarMobile = document.querySelector('.navbar-mobile');
+
+        if (burgerBtn && sidebar && sidebarOverlay) {
+            // Toggle sidebar
+            function toggleSidebar() {
+                sidebar.classList.toggle('active');
+                sidebarOverlay.classList.toggle('active');
+                navbarMobile.classList.toggle('active');
+            }
+
+            // Close sidebar
+            function closeSidebar() {
+                sidebar.classList.remove('active');
+                sidebarOverlay.classList.remove('active');
+                navbarMobile.classList.remove('active');
+            }
+
+            // Burger button click
+            burgerBtn.addEventListener('click', toggleSidebar);
+
+            // Close sidebar when clicking overlay
+            sidebarOverlay.addEventListener('click', closeSidebar);
+
+            // Close sidebar when clicking a link
+            const sidebarLinks = sidebar.querySelectorAll('a');
+            sidebarLinks.forEach(link => {
+                link.addEventListener('click', closeSidebar);
+            });
+
+            // Close sidebar on window resize (when going from mobile to desktop)
+            window.addEventListener('resize', () => {
+                if (window.innerWidth > 1024) {
+                    closeSidebar();
+                }
+            });
+        }
+    })();
+</script>
+
+<!-- Suppress DataTables alert popups and log errors to console instead -->
+<script>
+    (function(){
+        if (typeof jQuery !== 'undefined' && jQuery.fn && jQuery.fn.dataTable) {
+            // Disable the default alert dialog on DataTables errors
+            $.fn.dataTable.ext.errMode = 'none';
+
+            // Optional: log DataTables errors to console for debugging
+            $(document).on('error.dt', function(e, settings, techNote, message) {
+                console.warn('DataTables warning:', message, settings, techNote);
+            });
+        }
+    })();
+</script>
+
+</body>
+</html>

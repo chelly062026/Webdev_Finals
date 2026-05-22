@@ -1,0 +1,373 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}User Management{% endblock %}
+
+{% block stylesheets %}
+<style>
+    .page-header {
+        background: linear-gradient(135deg, #92278f 0%, #b344a1 100%);
+        color: #ffffff;
+        padding: 32px;
+        border-radius: 8px;
+        margin-bottom: 24px;
+        box-shadow: 0 10px 30px rgba(146, 39, 143, 0.18);
+        border: none;
+    }
+
+    .page-header h1 {
+        font-size: 28px;
+        font-weight: 700;
+        margin: 0 0 8px 0;
+        letter-spacing: -0.5px;
+        color: #ffffff;
+    }
+
+    .btn-primary {
+        background: #374151;
+        color: #ffffff;
+        border: 1px solid #374151;
+        padding: 10px 20px;
+        border-radius: 6px;
+        font-weight: 500;
+        transition: background-color 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        text-decoration: none;
+    }
+
+    .btn-primary:hover {
+        background: #1f2937;
+        color: #ffffff;
+    }
+
+    .table-container {
+        background: #ffffff;
+        padding: 24px;
+        border-radius: 8px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        border: 1px solid #e5e7eb;
+    }
+
+    .table-striped {
+        border-collapse: separate;
+        border-spacing: 0;
+        overflow: hidden;
+        width: 100%;
+    }
+
+    .table-striped thead {
+        background: #f9fafb;
+        border-bottom: 2px solid #e5e7eb;
+    }
+
+    .table-striped thead th {
+        color: #374151;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 11px;
+        letter-spacing: 0.5px;
+        padding: 16px 12px;
+        border-bottom: none;
+    }
+
+    .table-striped tbody tr {
+        transition: background-color 0.2s ease;
+    }
+
+    .table-striped tbody tr:hover {
+        background: #f9fafb;
+    }
+
+    .table-striped tbody td {
+        padding: 14px 12px;
+        vertical-align: middle;
+        border-bottom: 1px solid #f3f4f6;
+        color: #374151;
+    }
+
+    .table-striped tbody tr:nth-child(even) {
+        background-color: #fafafa;
+    }
+
+    .table-striped tbody tr:nth-child(even):hover {
+        background: #f9fafb;
+    }
+
+    /* Role Badges */
+    .role-badge {
+        display: inline-block;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-weight: 500;
+        font-size: 11px;
+        border: 1px solid #e5e7eb;
+        margin-right: 4px;
+        margin-bottom: 4px;
+    }
+
+    .role-badge.admin {
+        background: #fef2f2;
+        color: #991b1b;
+        border-color: #fecaca;
+    }
+
+    .role-badge.staff {
+        background: #eff6ff;
+        color: #1e40af;
+        border-color: #bfdbfe;
+    }
+
+    .role-badge.user {
+        background: #f0fdf4;
+        color: #166534;
+        border-color: #bbf7d0;
+    }
+
+    /* Action Buttons */
+    .btn-sm {
+        padding: 6px 12px;
+        font-size: 12px;
+        border-radius: 4px;
+        font-weight: 500;
+        transition: background-color 0.2s ease;
+        border: 1px solid transparent;
+        margin-right: 4px;
+    }
+
+    .btn-info {
+        background: #3b82f6;
+        color: #ffffff;
+    }
+
+    .btn-info:hover {
+        background: #2563eb;
+    }
+
+    .btn-warning {
+        background: #f59e0b;
+        color: #ffffff;
+    }
+
+    .btn-warning:hover {
+        background: #d97706;
+    }
+
+    .btn-danger {
+        background: #ef4444;
+        color: #ffffff;
+    }
+
+    .btn-danger:hover {
+        background: #dc2626;
+    }
+
+    /* DataTables Custom Styling */
+    .dataTables_wrapper .dataTables_length select {
+        border: 1px solid #d1d5db;
+        border-radius: 4px;
+        padding: 6px 10px;
+        font-size: 13px;
+        background: #ffffff;
+        cursor: pointer;
+    }
+
+    .dataTables_wrapper .dataTables_length select:focus {
+        outline: none;
+        border-color: #374151;
+    }
+
+    .dataTables_wrapper .dataTables_filter input {
+        border: 1px solid #d1d5db;
+        border-radius: 4px;
+        padding: 8px 12px;
+        font-size: 13px;
+        width: 200px;
+    }
+
+    .dataTables_wrapper .dataTables_filter input:focus {
+        outline: none;
+        border-color: #374151;
+        width: 250px;
+    }
+
+    .dataTables_wrapper .dataTables_paginate .paginate_button {
+        padding: 6px 10px !important;
+        margin: 0 2px !important;
+        border-radius: 4px !important;
+        border: 1px solid #d1d5db !important;
+        background: #ffffff !important;
+        color: #374151 !important;
+        font-weight: 500 !important;
+        transition: background-color 0.2s ease !important;
+    }
+
+    .dataTables_wrapper .dataTables_paginate .paginate_button:hover:not(.disabled) {
+        background: #f3f4f6 !important;
+        color: #374151 !important;
+        border-color: #9ca3af !important;
+    }
+
+    .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+        background: #374151 !important;
+        color: #ffffff !important;
+        border-color: #374151 !important;
+    }
+
+    .dataTables_wrapper .dataTables_paginate .paginate_button.disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    .dataTables_wrapper .dataTables_info {
+        color: #6b7280;
+        font-size: 13px;
+        font-weight: 400;
+        padding-top: 8px;
+    }
+
+    /* Empty State */
+    .text-center {
+        padding: 32px 24px;
+        color: #6b7280;
+        font-size: 14px;
+        font-weight: 400;
+        text-align: center;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .page-header {
+            padding: 24px;
+        }
+
+        .page-header h1 {
+            font-size: 22px;
+        }
+
+        .btn-primary {
+            width: 100%;
+        }
+
+        .table-container {
+            padding: 16px;
+            overflow-x: auto;
+        }
+
+        .dataTables_wrapper .dataTables_filter input {
+            width: 100%;
+        }
+
+        .dataTables_wrapper .dataTables_filter input:focus {
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+    <div class="container-fluid">
+        <div class="page-header">
+            <h1>User Management</h1>
+            <a href="{{ path('app_user_new') }}" class="btn btn-primary">
+                Create New User
+            </a>
+        </div>
+
+        <div class="table-container">
+            <table id="userTable" class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Username</th>
+                        <th>Roles</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for u in users %}
+                    <tr>
+                        <td><strong>#{{ u.id }}</strong></td>
+                        <td>{{ u.username }}</td>
+                        <td>
+                            {% for role in u.roles %}
+                                {% if role == 'ROLE_ADMIN' %}
+                                    <span class="role-badge admin">Admin</span>
+                                {% elseif role == 'ROLE_STAFF' %}
+                                    <span class="role-badge staff">Staff</span>
+                                {% elseif role == 'ROLE_USER' %}
+                                    <span class="role-badge user">User</span>
+                                {% else %}
+                                    <span class="role-badge user">{{ role }}</span>
+                                {% endif %}
+                            {% endfor %}
+                        </td>
+                        <td>
+                            {% if u.enabled %}
+                                <span class="badge bg-success">Active</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Disabled</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{{ path('app_user_show', {'id': u.id}) }}" class="btn btn-sm btn-info" title="View Details">
+                                View
+                            </a>
+                            <a href="{{ path('app_user_edit', {'id': u.id}) }}" class="btn btn-sm btn-warning" title="Edit User">
+                                Edit
+                            </a>
+                            <form method="POST" action="{{ path('app_user_delete', {'id': u.id}) }}" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this user?');">
+                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ u.id) }}">
+                                <button type="submit" class="btn btn-sm btn-danger" title="Delete User">
+                                    Delete
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center">
+                            No users found. Click "Create New User" to add your first user.
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/feather-icons/dist/feather.min.js"></script>
+    <script>
+        feather.replace();
+    </script>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            new DataTable('#userTable', {
+                responsive: true,
+                pageLength: 10,
+                lengthMenu: [[5, 10, 25, 50, -1], [5, 10, 25, 50, "All"]],
+                order: [[0, 'desc']],
+                language: {
+                    search: "Search users:",
+                    lengthMenu: "Show _MENU_ entries",
+                    info: "Showing _START_ to _END_ of _TOTAL_ entries",
+                    zeroRecords: "No matching users found",
+                    paginate: {
+                        first: "First",
+                        last: "Last",
+                        next: "Next",
+                        previous: "Previous"
+                    }
+                },
+                columnDefs: [
+                    { orderable: false, targets: 4 } // Disable sorting on Actions column
+                ]
+            });
+        });
+    </script>
+{% endblock %}

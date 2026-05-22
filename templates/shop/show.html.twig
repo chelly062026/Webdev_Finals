@@ -1,0 +1,42 @@
+{% extends 'shop/layout.html.twig' %}
+
+{% block title %}{{ product.name }} - Chelswear{% endblock %}
+
+{% block shop_stylesheets %}
+<link rel="stylesheet" href="{{ asset('styles/shop-collection.css') }}">
+{% endblock %}
+
+{% block shop_body %}
+<div class="shop-page">
+    <a href="{{ path('app_shop') }}" class="shop-back-link">&larr; Back to Shop</a>
+
+    <div class="shop-product-detail">
+        <div class="shop-product-visual collection-item">
+            {{ include('shop/_product_image.html.twig', {product: product, loop_index: 0}) }}
+        </div>
+        <div class="shop-product-info">
+            <h1>{{ product.name }}</h1>
+            <p class="shop-product-price">₱{{ product.price|number_format(2, '.', ',') }}</p>
+            {% if product.stock is not null %}
+                <p class="shop-product-stock">{{ product.stock }} available</p>
+            {% endif %}
+            {% if product.description %}
+                <p class="shop-product-description">{{ product.description }}</p>
+            {% endif %}
+
+            <div class="shop-add-form">
+                {{ include('shop/_add_to_cart.html.twig', {
+                    product: product,
+                    redirect: path('app_shop_product_show', {id: product.id}),
+                    show_quantity: true,
+                    button_class: 'btn-shop-cart btn-shop-cart-lg',
+                    form_class: 'shop-add-form-inner',
+                }) }}
+            </div>
+            {% if is_customer %}
+                <a href="{{ path('app_cart') }}" class="btn-shop-view">View Cart ({{ cart_count }})</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

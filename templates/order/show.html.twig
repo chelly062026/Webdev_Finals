@@ -1,0 +1,195 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Order{% endblock %}
+
+{% block body %}
+
+<style>
+    /* Page Wrapper */
+    .page-wrapper {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 32px;
+        width: 100%;
+        box-sizing: border-box;
+        font-family: Arial, sans-serif;
+    }
+
+    /* Detail Card */
+    .detail-card {
+        background: #ffffff;
+        width: 100%;
+        max-width: 600px;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+        margin: 0 auto;
+    }
+
+    .detail-card h1 {
+        text-align: center;
+        margin-bottom: 25px;
+        color: #333;
+    }
+
+    /* Table */
+    .detail-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 25px;
+    }
+
+    .detail-table th {
+        text-align: left;
+        padding: 12px;
+        width: 35%;
+        background: #f4f6f9;
+        color: #555;
+        font-weight: 600;
+    }
+
+    .detail-table td {
+        padding: 12px;
+        color: #333;
+        border-bottom: 1px solid #eee;
+    }
+
+    /* Actions */
+    .actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 20px;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .btn-primary {
+        padding: 10px 18px;
+        border-radius: 8px;
+        background: #92278f;
+        color: #fff;
+        text-decoration: none;
+        font-size: 14px;
+    }
+
+    .btn-primary:hover {
+        background: #b344a1;
+    }
+
+    .btn-secondary {
+        text-decoration: none;
+        color: #555;
+        font-size: 14px;
+        border: 1px solid #ccc;
+        padding: 8px 12px;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+
+    .btn-secondary:hover {
+        color: #fff;
+        background: #92278f;
+        border-color: #92278f;
+    }
+
+    .actions form button {
+        padding: 10px 18px;
+        border-radius: 8px;
+        border: none;
+        background: #dc3545;
+        color: #fff;
+        cursor: pointer;
+        transition: background 0.3s ease;
+    }
+
+    .actions form button:hover {
+        background: #b52a37;
+    }
+</style>
+
+<div class="page-wrapper">
+    <div class="detail-card">
+        <h1>Order Details</h1>
+
+        <table class="detail-table">
+            <tbody>
+                <tr>
+                    <th>ID</th>
+                    <td>{{ order.id }}</td>
+                </tr>
+                <tr>
+                    <th>Description</th>
+                    <td>{{ order.description }}</td>
+                </tr>
+                <tr>
+                    <th>Price</th>
+                    <td>₱{{ order.price }}</td>
+                </tr>
+                <tr>
+                    <th>Products</th>
+                    <td>
+                        {% if order.product is defined and order.product %}
+                            <ul style="margin:0; padding-left:18px;">
+                                {% for p in order.product %}
+                                    <li>{{ p.name }} — ₱{{ p.price }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <span class="text-muted">No products</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <th>Total Amount</th>
+                    <td>
+                        {% if order.totalAmount is defined and order.totalAmount is not null %}
+                            ₱{{ order.totalAmount|number_format(2, '.', ',') }}
+                        {% elseif order.price is defined and order.price is not null and order.quantity is defined and order.quantity is not null %}
+                            {% set computed = (order.price|default(0) * (order.quantity|default(0))) %}
+                            ₱{{ computed|number_format(2, '.', ',') }}
+                        {% else %}
+                            <span class="text-muted">N/A</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <th>Status</th>
+                    <td>{{ order.status|default('N/A') }}</td>
+                </tr>
+                <tr>
+                    <th>Quantity</th>
+                    <td>{{ order.quantity }}</td>
+                </tr>
+                <tr>
+                    <th>Created At</th>
+                    <td>{{ order.createdAt ? order.createdAt|date('Y-m-d H:i:s') : '' }}</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="actions">
+            <a class="btn-secondary" href="{{ path('app_order_index') }}">
+                ← Back to list
+            </a>
+
+            {% set orderCreatedBy = order.createdBy is defined ? order.createdBy : null %}
+            {% set createdByAdmin = orderCreatedBy and orderCreatedBy.roles is defined and 'ROLE_ADMIN' in orderCreatedBy.roles %}
+            {% set createdByCurrentUser = app.user and orderCreatedBy and orderCreatedBy.id is defined and orderCreatedBy.id == app.user.id %}
+            {% set canManageOrder = is_granted('ROLE_ADMIN') or createdByCurrentUser or (is_granted('ROLE_STAFF') and createdByAdmin) %}
+
+            {% if canManageOrder and order.status is defined and order.status not in ['completed','cancelled'] %}
+                <a class="btn-primary" href="{{ path('app_order_edit', {'id': order.id}) }}">
+                    Edit
+                </a>
+            {% endif %}
+
+            {% if canManageOrder %}
+                {{ include('order/_delete_form.html.twig') }}
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% endblock %}

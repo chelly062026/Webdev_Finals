@@ -1,0 +1,46 @@
+{% extends 'shop/layout.html.twig' %}
+
+{% block title %}Checkout - Chelswear{% endblock %}
+
+{% block shop_stylesheets %}
+<link rel="stylesheet" href="{{ asset('styles/checkout.css') }}">
+{% endblock %}
+
+{% block shop_body %}
+<div class="shop-page checkout-page">
+    <header class="shop-page-header">
+        <h1>Checkout</h1>
+        <p>Review your order and confirm your details.</p>
+    </header>
+
+    <div class="checkout-layout">
+        <section class="checkout-summary">
+            <h2>Order Summary</h2>
+            <ul class="checkout-lines">
+                {% for item in items %}
+                    <li>
+                        <span class="checkout-line-name">{{ item.product.name }} × {{ item.quantity }}</span>
+                        <span class="checkout-line-price">₱{{ item.subtotal|number_format(2, '.', ',') }}</span>
+                    </li>
+                {% endfor %}
+            </ul>
+            <div class="checkout-total">
+                <span>Total</span>
+                <strong>₱{{ subtotal|number_format(2, '.', ',') }}</strong>
+            </div>
+            <a href="{{ path('app_cart') }}" class="checkout-back">&larr; Back to cart</a>
+        </section>
+
+        <section class="checkout-form-card">
+            <h2>Your Details</h2>
+            <p class="checkout-account">Ordering as <strong>{{ app.user.email }}</strong></p>
+
+            {{ form_start(form, {attr: {class: 'checkout-form'}}) }}
+                {{ form_row(form.phoneNumber) }}
+                {{ form_row(form.notes) }}
+                <button type="submit" class="btn-checkout-submit">Place Order</button>
+            {{ form_end(form) }}
+        </section>
+    </div>
+</div>
+{% endblock %}

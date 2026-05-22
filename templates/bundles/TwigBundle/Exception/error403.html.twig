@@ -1,0 +1,13 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Access Denied{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <div class="card-min mt-5">
+            <h2>403 — Access Denied</h2>
+            <p>You do not have permission to access this page.</p>
+            <a href="{{ path('app_dashboard') }}" class="btn btn-primary">Return to dashboard</a>
+        </div>
+    </div>
+{% endblock %}

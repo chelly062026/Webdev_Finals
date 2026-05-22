@@ -1,0 +1,22 @@
+{# Uploaded image from admin, or fallback to public/ assets like the collection section #}
+{% set gallery = [
+    'product1.png',
+    'product2.png',
+    'collection1.png',
+    'collection4.jpg',
+    'collection5.jpg',
+    'collection6.jpg',
+] %}
+
+{% set nameFallbacks = {
+    'plain shirt': 'plain3.png',
+    'printed shirt': 'collection6.jpg',
+    'customized shirt': 'collection1.png',
+} %}
+
+{% if product.image %}
+    <img src="{{ asset('uploads/products/' ~ product.image) }}" alt="{{ product.name }}" class="product-img" loading="lazy">
+{% else %}
+    {% set fallback = nameFallbacks[product.name|lower] ?? gallery[loop_index|default(0) % gallery|length] %}
+    <img src="{{ asset(fallback) }}" alt="{{ product.name }}" class="product-img" loading="lazy">
+{% endif %}

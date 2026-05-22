@@ -1,0 +1,20 @@
+{# product: Product entity, redirect: optional URL after add #}
+{% if is_granted('IS_CUSTOMER') %}
+    <form method="post" action="{{ path('app_cart_add', {id: product.id}) }}" class="{{ form_class|default('') }}">
+        <input type="hidden" name="_token" value="{{ csrf_token('cart_add' ~ product.id) }}">
+        {% if redirect is defined and redirect %}
+            <input type="hidden" name="redirect" value="{{ redirect }}">
+        {% endif %}
+        {% if show_quantity|default(false) %}
+            <label for="quantity-{{ product.id }}">Quantity</label>
+            <input type="number" id="quantity-{{ product.id }}" name="quantity" value="1" min="1" max="{{ product.stock ?? 99 }}" class="shop-qty-input">
+        {% endif %}
+        <button type="submit" class="{{ button_class|default('btn-shop-cart') }}"{% if product.stock is not null and product.stock < 1 %} disabled{% endif %}>
+            {{ button_label|default('Add to Cart') }}
+        </button>
+    </form>
+{% else %}
+    <a href="{{ path('app_login') }}" class="{{ button_class|default('btn-shop-cart') }} btn-login-for-cart">
+        Add to Cart
+    </a>
+{% endif %}

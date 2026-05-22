@@ -1,0 +1,578 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block stylesheets %}
+
+<style>
+    body {
+        font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    }
+
+/* Dashboard-only content spacing */
+.content {
+    margin: 0;
+    padding: 32px;
+    min-height: 100vh;
+    width: 100%;
+    box-sizing: border-box;
+    transition: margin-left 0.3s ease, width 0.3s ease;
+}
+
+/* Desktop - Normal sidebar */
+.with-sidebar .content {
+    margin-left: 260px;
+    width: calc(100% - 260px);
+    padding: 32px;
+}
+    .welcome-card {
+        background: linear-gradient(200deg, var(--accent) 0%, #b344a1 100%);
+        color: white;
+        padding: 40px;
+        border-radius: 12px;
+        margin-bottom: 24px;
+        box-shadow: 0 8px 24px rgba(146, 39, 143, 0.2);
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .welcome-title {
+        font-family: 'Poppins', sans-serif;
+        font-size: 22px;
+        font-weight: 700;
+        margin-bottom: 4px;
+        letter-spacing: -0.5px;
+    }
+
+    .welcome-subtitle {
+        font-size: 13px;
+        opacity: 0.95;
+        font-weight: 400;
+        margin-bottom: 10px;
+    }
+
+    .role-badge {
+        display: inline-block;
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 600;
+        background-color: rgba(255, 255, 255, 0.25);
+        border: 1.5px solid rgba(255, 255, 255, 0.4);
+        backdrop-filter: blur(10px);
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 16px;
+        margin-bottom: 24px;
+    }
+
+    .stat-card {
+        background-color: white;
+        padding: 20px 16px;
+        border-radius: 10px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        border: 1px solid #f0f0f0;
+        text-align: center;
+        transition: all 0.3s ease;
+    }
+
+    .stat-card:hover {
+        box-shadow: 0 4px 12px rgba(146, 39, 143, 0.12);
+        transform: translateY(-1px);
+    }
+
+    .stat-icon {
+        font-size: 24px;
+        margin-bottom: 6px;
+        color: var(--accent);
+    }
+
+    .stat-label {
+        font-size: 10px;
+        color: #999;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+        margin-bottom: 4px;
+        font-weight: 700;
+    }
+
+    .stat-value {
+        font-family: 'Poppins', sans-serif;
+        font-size: 22px;
+        font-weight: 700;
+        color: var(--accent);
+        line-height: 1;
+    }
+
+    .quick-actions {
+        background-color: white;
+        padding: 16px;
+        border-radius: 10px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        border: 1px solid #f0f0f0;
+        margin-top: 16px;
+    }
+
+    .quick-actions-title {
+        font-family: 'Poppins', sans-serif;
+        font-size: 14px;
+        font-weight: 700;
+        margin-bottom: 12px;
+        color: #1a1a1a;
+        letter-spacing: -0.3px;
+    }
+
+    .action-buttons {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+        gap: 12px;
+    }
+
+    .action-btn {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        padding: 12px 8px;
+        background-color: #f8f9fa;
+        border: 1px solid #e8e8e8;
+        border-radius: 8px;
+        text-decoration: none;
+        color: #333;
+        font-weight: 600;
+        font-size: 11px;
+        text-align: center;
+        transition: all 0.3s ease;
+    }
+
+    .action-btn:hover {
+        background-color: var(--accent);
+        color: white;
+        border-color: var(--accent);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(146, 39, 143, 0.2);
+    }
+
+    .action-icon {
+        font-size: 18px;
+        opacity: 0.8;
+    }
+
+    .action-btn:hover .action-icon {
+        opacity: 1;
+    }
+
+    .access-message {
+        background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+        padding: 16px;
+        border-radius: 10px;
+        border-left: 4px solid var(--accent);
+        margin-top: 16px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    }
+
+    .access-message p {
+        margin: 0;
+        color: #555;
+        font-size: 12px;
+        line-height: 1.5;
+    }
+
+    .access-message strong {
+        color: var(--accent);
+    }
+
+    /* Recent Orders/Products Grid */
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 16px;
+        margin-top: 24px;
+    }
+
+    .dashboard-grid li {
+        padding: 12px 0;
+        border-bottom: 1px solid #f3f3f3;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .dashboard-grid li:last-child {
+        border-bottom: none;
+    }
+
+    .order-info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .order-info strong {
+        display: block;
+        word-break: break-word;
+    }
+
+    .order-meta {
+        font-size: 12px;
+        color: #666;
+        margin-top: 4px;
+    }
+
+    .order-details {
+        text-align: right;
+        white-space: nowrap;
+    }
+
+    .order-details > div:first-child {
+        font-weight: 700;
+        margin-bottom: 6px;
+    }
+
+    .order-status {
+        padding: 4px 8px;
+        border-radius: 12px;
+        background: #f3f3f3;
+        font-size: 12px;
+        display: inline-block;
+    }
+
+    .status-summary-grid {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 16px;
+    }
+
+    .status-summary-grid .stat-card {
+        flex: 1;
+        min-width: 0;
+    }
+
+    @media (max-width: 1024px) {
+        .content {
+            padding: 16px;
+        }
+
+        .with-sidebar .content {
+            margin-left: 0;
+            width: 100%;
+            padding-top: 70px;
+            padding-left: 16px;
+            padding-right: 16px;
+            padding-bottom: 16px;
+        }
+
+        .welcome-card {
+            padding: 24px;
+            gap: 12px;
+        }
+
+        .welcome-title {
+            font-size: 18px;
+        }
+
+        .welcome-subtitle {
+            font-size: 12px;
+        }
+
+        .role-badge {
+            font-size: 10px;
+            padding: 4px 10px;
+        }
+
+        .dashboard-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .order-details {
+            text-align: left;
+        }
+
+        .dashboard-grid li {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .content {
+            padding: 12px;
+        }
+
+        .with-sidebar .content {
+            margin-left: 0 !important;
+            width: 100% !important;
+            padding-top: 70px;
+            padding-left: 12px;
+            padding-right: 12px;
+            padding-bottom: 12px;
+        }
+
+        .welcome-card {
+            padding: 20px;
+            flex-direction: column;
+        }
+
+        .welcome-title {
+            font-size: 16px;
+        }
+
+        .welcome-subtitle {
+            font-size: 11px;
+        }
+
+        .stats-grid {
+            gap: 12px;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        }
+
+        .stat-card {
+            padding: 14px 12px;
+        }
+
+        .stat-value {
+            font-size: 20px;
+        }
+
+        .action-buttons {
+            gap: 10px;
+            grid-template-columns: repeat(auto-fit, minmax(85px, 1fr));
+        }
+
+        .action-btn {
+            padding: 10px 6px;
+            font-size: 10px;
+        }
+
+        .action-icon {
+            font-size: 16px;
+        }
+
+        .quick-actions {
+            padding: 12px;
+        }
+
+        .quick-actions-title {
+            font-size: 12px;
+            margin-bottom: 10px;
+        }
+
+        .access-message {
+            padding: 12px;
+            margin-top: 12px;
+        }
+
+        .access-message p {
+            font-size: 11px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .content {
+            padding: 8px;
+        }
+
+        .with-sidebar .content {
+            padding-top: 70px;
+            padding-left: 8px;
+            padding-right: 8px;
+            padding-bottom: 8px;
+        }
+
+        .welcome-card {
+            padding: 16px;
+            border-radius: 10px;
+        }
+
+        .welcome-title {
+            font-size: 14px;
+        }
+
+        .welcome-subtitle {
+            font-size: 10px;
+        }
+
+        .stats-grid {
+            gap: 8px;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+        }
+
+        .stat-card {
+            padding: 12px 10px;
+            border-radius: 8px;
+        }
+
+        .stat-icon {
+            font-size: 20px;
+        }
+
+        .stat-label {
+            font-size: 8px;
+        }
+
+        .stat-value {
+            font-size: 16px;
+        }
+
+        .role-badge {
+            font-size: 9px;
+            padding: 3px 8px;
+        }
+
+        .action-buttons {
+            gap: 8px;
+            grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
+        }
+
+        .action-btn {
+            padding: 8px 4px;
+            font-size: 9px;
+            gap: 4px;
+        }
+
+        .action-icon {
+            font-size: 14px;
+        }
+
+        .quick-actions {
+            padding: 10px;
+            margin-top: 12px;
+        }
+
+        .quick-actions-title {
+            font-size: 11px;
+        }
+
+        .access-message {
+            padding: 10px;
+            margin-top: 10px;
+            border-left: 3px solid var(--accent);
+        }
+
+        .access-message p {
+            font-size: 10px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+
+    <div class="welcome-card">
+        {% if app.user %}
+            <h1 class="welcome-title">Welcome back, {{ app.user.username }}! </h1>
+        {% else %}
+            <h1 class="welcome-title">Welcome to CHELSWEAR! </h1>
+        {% endif %}
+        <p class="welcome-subtitle">Here's what's happening with your business today.</p>
+        
+        {% if app.user %}
+            {% if is_granted('ROLE_ADMIN') %}
+                <span class="role-badge admin"><i data-feather="shield" class="me-1"></i> Administrator - Full Access</span>
+            {% elseif is_granted('ROLE_STAFF') %}
+                <span class="role-badge staff"><i data-feather="star" class="me-1"></i> Staff Member - Management Access</span>
+            {% endif %}
+        {% endif %}
+    </div>
+
+    {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_STAFF') %}
+        <div class="stats-grid">
+            <div class="stat-card">
+                <i data-feather="package" class="stat-icon"></i>
+                <div class="stat-label">Total Products</div>
+                <div class="stat-value">{{ productCount }}</div>
+            </div>
+            
+            <div class="stat-card">
+                <i data-feather="users" class="stat-icon"></i>
+                <div class="stat-label">Total Customers</div>
+                <div class="stat-value">{{ customerCount }}</div>
+            </div>
+            
+            <div class="stat-card">
+                <i data-feather="shopping-cart" class="stat-icon"></i>
+                <div class="stat-label">Total Orders</div>
+                <div class="stat-value">{{ orderCount }}</div>
+            </div>
+            
+            <div class="stat-card">
+                <i data-feather="dollar-sign" class="stat-icon"></i>
+                <div class="stat-label">Revenue</div>
+                <div class="stat-value">${{ totalRevenue|number_format(2, '.', ',') }}</div>
+            </div>
+        </div>
+
+        {# Status summary #}
+        <div class="status-summary-grid">
+            <div class="stat-card">
+                <div class="stat-label">Pending</div>
+                <div class="stat-value">{{ statusCounts.pending|default(0) }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Processing</div>
+                <div class="stat-value">{{ statusCounts.processing|default(0) }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Completed</div>
+                <div class="stat-value">{{ statusCounts.completed|default(0) }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Cancelled</div>
+                <div class="stat-value">{{ statusCounts.cancelled|default(0) }}</div>
+            </div>
+        </div>
+
+        <div class="dashboard-grid">
+            <div class="quick-actions">
+                <div class="quick-actions-title">Recent Orders</div>
+                {% if recentOrders is defined and recentOrders|length > 0 %}
+                    <ul style="list-style:none; padding:0; margin:0;">
+                        {% for order in recentOrders %}
+                            <li>
+                                <div class="order-info">
+                                    <strong>#{{ order.id }}</strong> — {{ order.customer ? order.customer.name : 'No Customer' }}
+                                    <div class="order-meta">{{ order.createdAt ? order.createdAt|date('Y-m-d H:i') : '' }}</div>
+                                </div>
+                                <div class="order-details">
+                                    <div>${{ order.totalAmount is not null ? order.totalAmount|number_format(2, '.', ',') : '0.00' }}</div>
+                                    <span class="order-status">{{ order.status|default('pending') }}</span>
+                                </div>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p style="margin:0; color:#666;">No recent orders.</p>
+                {% endif %}
+            </div>
+
+            <div class="quick-actions">
+                <div class="quick-actions-title">Recent Products</div>
+                {% if recentProducts is defined and recentProducts|length > 0 %}
+                    <ul style="list-style:none; padding:0; margin:0;">
+                        {% for p in recentProducts %}
+                            <li style="padding:12px 0; border-bottom:1px solid #f3f3f3;">
+                                <strong>{{ p.name }}</strong>
+                                <div style="font-size:12px; color:#666; margin-top:4px;">Added {{ p.createdAt ? p.createdAt|date('Y-m-d') : '' }}</div>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p style="margin:0; color:#666;">No recent products.</p>
+                {% endif %}
+            </div>
+        </div>
+
+    {% endif %}
+
+
+<script src="https://unpkg.com/feather-icons/dist/feather.min.js"></script>
+<script>
+    feather.replace();
+</script>
+
+{% endblock %}

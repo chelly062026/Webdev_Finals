@@ -1,0 +1,74 @@
+{% extends 'shop/layout.html.twig' %}
+
+{% block title %}Shop - Chelswear{% endblock %}
+
+{% block shop_stylesheets %}
+<link rel="stylesheet" href="{{ asset('styles/shop-collection.css') }}">
+{% endblock %}
+
+{% block shop_body %}
+<div class="shop-page shop-page-collection">
+    <header class="shop-page-header">
+        <h1>Shop</h1>
+        <p>Browse our collection and add your favorites to the cart.</p>
+    </header>
+
+    {% if products|length > 0 %}
+        <div class="shop-toolbar">
+            <input type="search" id="shopSearch" class="shop-search" placeholder="Search products..." aria-label="Search products">
+        </div>
+
+        <div class="collection-grid shop-product-grid" id="shopGrid">
+            {% for product in products %}
+                <article class="shop-card" data-name="{{ product.name|lower }}">
+                    <a href="{{ path('app_shop_product_show', {id: product.id}) }}" class="collection-item shop-card-image-link">
+                        <div class="collection-item">
+                            {{ include('shop/_product_image.html.twig', {product: product, loop_index: loop.index0}) }}
+                        </div>
+                    </a>
+                    <div class="shop-card-body">
+                        <h2 class="shop-card-title">
+                            <a href="{{ path('app_shop_product_show', {id: product.id}) }}">{{ product.name }}</a>
+                        </h2>
+                        {% if product.description %}
+                            <p class="shop-card-desc">{{ product.description|slice(0, 80) }}{% if product.description|length > 80 %}...{% endif %}</p>
+                        {% endif %}
+                        <div class="shop-card-meta">
+                            <span class="shop-card-price">₱{{ product.price|number_format(2, '.', ',') }}</span>
+                            {% if product.stock is not null %}
+                                <span class="shop-card-stock">{{ product.stock }} in stock</span>
+                            {% endif %}
+                        </div>
+                        <div class="shop-card-actions">
+                            {{ include('shop/_add_to_cart.html.twig', {
+                                product: product,
+                                redirect: path('app_shop'),
+                                form_class: 'shop-card-add-form',
+                            }) }}
+                            <a href="{{ path('app_shop_product_show', {id: product.id}) }}" class="btn-shop-view">Details</a>
+                        </div>
+                    </div>
+                </article>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="shop-empty">
+            <p>No products available yet. Check back soon!</p>
+            <a href="{{ path('app_homepage') }}" class="btn-shop-view">Back to Home</a>
+        </div>
+    {% endif %}
+</div>
+
+<script>
+    const shopSearch = document.getElementById('shopSearch');
+    if (shopSearch) {
+        shopSearch.addEventListener('input', function () {
+            const term = this.value.toLowerCase().trim();
+            document.querySelectorAll('.shop-card').forEach(function (card) {
+                const name = card.dataset.name || '';
+                card.style.display = name.includes(term) ? '' : 'none';
+            });
+        });
+    }
+</script>
+{% endblock %}

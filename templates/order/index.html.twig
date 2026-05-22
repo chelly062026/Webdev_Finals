@@ -1,0 +1,258 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Order Management{% endblock %}
+{% block body %}
+
+<link rel="stylesheet" href="{{ asset('styles/dashboardactivitylogindex.css') }}">
+
+    <div class="container-fluid">
+        <div class="page-header">
+            <h1>Order Management</h1>
+            <div class="header-actions">
+                {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_STAFF') %}
+                    <a href="{{ path('app_order_new') }}" class="btn btn-primary">
+                        <i data-feather="plus-circle" class="me-1"></i>Create New Order
+                    </a>
+                {% endif %}
+                <div class="text-white">
+                    <small>
+                        {% if is_granted('ROLE_ADMIN') %}
+                           
+                        {% elseif is_granted('ROLE_STAFF') %}
+                            
+                        {% endif %}
+                    </small>
+                </div>
+            </div>
+        </div>
+
+        {% if is_granted('ROLE_STAFF') %}
+            {# <div class="access-notice">
+                <i data-feather="info" class="fa-lg"></i>
+                <div>
+                    <strong>Staff Access Rules:</strong> 
+                    You can edit/delete orders that you created, and also manage orders created by administrators.
+                </div>
+            </div> #}
+        {% endif %}
+
+        <div class="table-container">
+            <table id="orderTable" class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Customer</th>
+                        <th>Items</th>
+                        <th>Total Amount</th>
+                        <th>Status</th>
+                        <th>Created By</th>
+                        <th>Created At</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for order in orders %}
+                    {# Safely check if order.createdBy exists #}
+                    {% set orderCreatedBy = order.createdBy is defined ? order.createdBy : null %}
+                    {% set createdByAdmin = orderCreatedBy and orderCreatedBy.roles is defined and 'ROLE_ADMIN' in orderCreatedBy.roles %}
+                    {% set createdByCurrentUser = app.user and orderCreatedBy and orderCreatedBy.id is defined and orderCreatedBy.id == app.user.id %}
+                    
+                    <tr>
+                        <td><strong>#{{ order.id }}</strong></td>
+                        <td>
+                            {# Check if customer property exists #}
+                            {% if order.customer is defined and order.customer %}
+                                {{ order.customer.name|default('N/A') }}
+                                <br>
+                                <small class="text-muted">{{ order.customer.email|default('') }}</small>
+                            {% else %}
+                                <span class="text-muted">No customer</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {# Display number of items or other order details #}
+                            {% if order.product is defined and order.product %}
+                                {{ order.product|length }} item(s)
+                            {% elseif order.orderItems is defined and order.orderItems %}
+                                {{ order.orderItems|length }} item(s)
+                            {% elseif order.items is defined and order.items %}
+                                {{ order.items|length }} item(s)
+                            {% else %}
+                                <span class="text-muted">N/A</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {# Check if totalAmount property exists #}
+                            {% if order.totalAmount is defined %}
+                                <span class="amount-badge">₱{{ order.totalAmount|number_format(2, '.', ',') }}</span>
+                            {% elseif order.total is defined %}
+                                <span class="amount-badge">₱{{ order.total|number_format(2, '.', ',') }}</span>
+                            {% else %}
+                                <span class="text-muted">N/A</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {{ order.status|default('N/A') }}
+                        </td>
+                        <td>
+                            {% if orderCreatedBy %}
+                                <span class="creator-badge {{ createdByAdmin ? 'creator-admin' : 'creator-staff' }}">
+                                    <i data-feather="{{ createdByAdmin ? 'shield' : 'user-check' }}"></i>
+                                    {{ createdByAdmin ? 'Admin' : 'Staff' }}
+                                </span>
+                                <br>
+                                <small>{{ orderCreatedBy.username|default('Unknown') }}</small>
+                            {% else %}
+                                <span class="text-muted">Unknown</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if order.createdAt is defined and order.createdAt %}
+                                <span class="date-badge">{{ order.createdAt|date('M d, Y') }}</span>
+                            {% elseif order.orderDate is defined and order.orderDate %}
+                                <span class="date-badge">{{ order.orderDate|date('M d, Y') }}</span>
+                            {% else %}
+                                <span class="text-muted">N/A</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="action-buttons">
+                                <!-- View button - Available for everyone -->
+                                <a href="{{ path('app_order_show', {'id': order.id}) }}" class="btn btn-sm btn-info" title="View Order Details">
+                                    <i data-feather="eye"></i> View
+                                </a>
+                                
+                                <!-- FOR ADMIN: Full access to ALL orders (restricted for completed/cancelled) -->
+                                {% if is_granted('ROLE_ADMIN') %}
+                                    {% if order.status|default('') in ['completed', 'cancelled'] %}
+                                        <!-- Admin: completed/cancelled orders are view+delete only -->
+                                        <form method="POST" action="{{ path('app_order_delete', {'id': order.id}) }}" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this {{ order.status|default('order') }} order?');">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ order.id) }}">
+                                            <button type="submit" class="btn btn-sm btn-danger" title="Delete Order">
+                                                <i data-feather="trash"></i> Delete
+                                            </button>
+                                        </form>
+                                    {% else %}
+                                        <a href="{{ path('app_order_edit', {'id': order.id}) }}" class="btn btn-sm btn-warning" title="Edit Order">
+                                            <i data-feather="edit"></i> Edit
+                                        </a>
+                                        
+                                        <form method="POST" action="{{ path('app_order_delete', {'id': order.id}) }}" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this order?');">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ order.id) }}">
+                                            <button type="submit" class="btn btn-sm btn-danger" title="Delete Order">
+                                                <i data-feather="trash"></i> Delete
+                                            </button>
+                                        </form>
+                                    {% endif %}
+                                
+                                <!-- FOR STAFF: Different permissions based on who created the order -->
+                                {% elseif is_granted('ROLE_STAFF') %}
+                                    {% if createdByCurrentUser %}
+                                        {# Staff can edit/delete THEIR OWN orders. If completed, only View + Delete (no Edit) #}
+                                        {% if order.status|default('') in ['completed', 'cancelled'] %}
+                                            <form method="POST" action="{{ path('app_order_delete', {'id': order.id}) }}" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this {{ order.status|default('order') }} order?');">
+                                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ order.id) }}">
+                                                <button type="submit" class="btn btn-sm btn-danger" title="Delete Order">
+                                                    <i data-feather="trash"></i> Delete
+                                                </button>
+                                            </form>
+                                        {% else %}
+                                            <a href="{{ path('app_order_edit', {'id': order.id}) }}" class="btn btn-sm btn-warning" title="Edit Order">
+                                                <i data-feather="edit"></i> Edit
+                                            </a>
+                                            
+                                            <form method="POST" action="{{ path('app_order_delete', {'id': order.id}) }}" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this order?');">
+                                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ order.id) }}">
+                                                <button type="submit" class="btn btn-sm btn-danger" title="Delete Order">
+                                                    <i data-feather="trash"></i> Delete
+                                                </button>
+                                            </form>
+                                        {% endif %}
+                                    
+                                    {% elseif createdByAdmin %}
+                                        {# Staff can manage orders created by admin #}
+                                        {% if order.status|default('') in ['completed', 'cancelled'] %}
+                                            <form method="POST" action="{{ path('app_order_delete', {'id': order.id}) }}" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this {{ order.status|default('order') }} order?');">
+                                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ order.id) }}">
+                                                <button type="submit" class="btn btn-sm btn-danger" title="Delete Order">
+                                                    <i data-feather="trash"></i> Delete
+                                                </button>
+                                            </form>
+                                        {% else %}
+                                            <a href="{{ path('app_order_edit', {'id': order.id}) }}" class="btn btn-sm btn-warning" title="Edit Order">
+                                                <i data-feather="edit"></i> Edit
+                                            </a>
+                                            <form method="POST" action="{{ path('app_order_delete', {'id': order.id}) }}" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this order?');">
+                                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ order.id) }}">
+                                                <button type="submit" class="btn btn-sm btn-danger" title="Delete Order">
+                                                    <i data-feather="trash"></i> Delete
+                                                </button>
+                                            </form>
+                                        {% endif %}
+                                    {% else %}
+                                        <!-- For orders created by other staff or unknown - view only -->
+                                        <span class="text-muted" style="font-size: 11px; padding: 4px 8px; background: #f3f4f6; border-radius: 4px;">
+                                            <i data-feather="eye" class="me-1"></i>View Only
+                                        </span>
+                                    {% endif %}
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="8" class="text-center py-5">
+                            <i data-feather="shopping-cart" class="mb-3" style="color: #d1d5db; width: 48px; height: 48px;"></i>
+                            <p class="mb-2">No orders found.</p>
+                            {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_STAFF') %}
+                                <p class="text-muted">Click "Create New Order" to add your first order.</p>
+                            {% else %}
+                                <p class="text-muted">No orders available for viewing.</p>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize DataTable
+            let table = new DataTable('#orderTable', {
+                responsive: true,
+                pageLength: 10,
+                lengthMenu: [[5, 10, 25, 50, -1], [5, 10, 25, 50, "All"]],
+                order: [[0, 'desc']], // Sort by Order ID descending
+                language: {
+                    search: "Search orders:",
+                    lengthMenu: "Show _MENU_ entries",
+                    info: "Showing _START_ to _END_ of _TOTAL_ entries",
+                    infoEmpty: "Showing 0 to 0 of 0 entries",
+                    infoFiltered: "(filtered from _MAX_ total entries)",
+                    zeroRecords: "No matching orders found",
+                    paginate: {
+                        first: "First",
+                        last: "Last",
+                        next: "Next",
+                        previous: "Previous"
+                    }
+                },
+                columnDefs: [
+                    { orderable: false, targets: 6 } // Disable sorting on Actions column
+                ]
+            });
+        });
+    </script>
+
+<script src="https://unpkg.com/feather-icons/dist/feather.min.js"></script>
+<script>
+    feather.replace();
+</script>
+{% endblock %}

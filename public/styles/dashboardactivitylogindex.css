@@ -1,0 +1,4 @@
+/* Import common dashboard styles */
+@import url('dashboard-common.css');
+
+/* Activity Log specific styles - none needed, all styles are now in common */

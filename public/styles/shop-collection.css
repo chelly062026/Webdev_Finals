@@ -1,0 +1,97 @@
+/* Shop grid — same image format as homepage Collection Highlights */
+.shop-page-collection .shop-page-header {
+    text-align: center;
+}
+
+.shop-page-collection .shop-toolbar {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 28px;
+}
+
+.shop-product-grid.collection-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+    margin-bottom: 30px;
+}
+
+.shop-product-grid .shop-card {
+    background: #fff;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.shop-product-grid .shop-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+}
+
+.shop-card-image-link {
+    display: block;
+    text-decoration: none;
+}
+
+.shop-product-grid .collection-item {
+    background: #e0e0e0;
+    border-radius: 10px 10px 0 0;
+    aspect-ratio: 3 / 4;
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.shop-product-grid .collection-item img,
+.shop-product-grid .collection-item .product-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.shop-product-grid .shop-card-body {
+    padding: 16px 18px 18px;
+}
+
+.shop-product-grid .shop-card-title {
+    font-size: 17px;
+    margin-bottom: 8px;
+}
+
+.shop-product-grid .shop-card-title a {
+    color: #333;
+    text-decoration: none;
+    font-weight: 700;
+}
+
+.shop-product-grid .shop-card-title a:hover {
+    color: #ff0095;
+}
+
+.shop-product-detail .shop-product-visual.collection-item {
+    border-radius: 12px;
+    aspect-ratio: 3 / 4;
+    max-height: 520px;
+}
+
+.shop-product-detail .shop-product-visual.collection-item img,
+.shop-product-detail .shop-product-visual.collection-item .product-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+@media (max-width: 992px) {
+    .shop-product-grid.collection-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .shop-product-grid.collection-grid {
+        grid-template-columns: 1fr;
+    }
+}

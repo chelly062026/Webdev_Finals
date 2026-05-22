@@ -1,0 +1,33 @@
+{% extends 'base.html.twig' %}
+
+{% block stylesheets %}
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ asset('styles/shop.css') }}">
+<style>
+    body { font-family: 'Montserrat', sans-serif; background: linear-gradient(180deg, #f7f1f8 0%, #f0e6f4 100%); }
+    .content { margin-left: 0 !important; width: 100% !important; padding: 0 !important; min-height: 100vh; }
+    .sidebar, .navbar-mobile { display: none !important; }
+    .shop-flash { max-width: 1100px; margin: 16px auto 0; padding: 0 24px; }
+    .shop-flash .alert { display: block; border-radius: 10px; font-size: 14px; }
+</style>
+{% block shop_stylesheets %}{% endblock %}
+{% endblock %}
+
+{% block body %}
+{{ include('homepage/nav.html.twig') }}
+
+<div class="shop-flash">
+    {% for label, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="alert alert-{{ label == 'error' ? 'danger' : label }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endfor %}
+</div>
+
+{% block shop_body %}{% endblock %}
+
+{{ include('homepage/footer.html.twig') }}
+{% endblock %}

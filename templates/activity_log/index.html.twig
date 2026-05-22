@@ -1,0 +1,126 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Activity Logs{% endblock %}
+
+{% block stylesheets %}
+<link rel="stylesheet" href="{{ asset('styles/dashboardactivitylogindex.css') }}">
+{% endblock %}
+
+{% block body %}
+
+    <div class="container-fluid">
+        <div class="page-header">
+            <h1>Activity Logs</h1>
+            <p>Track all system activities and user actions</p>
+        </div>
+
+        <div class="activity-container">
+            <table id="logTable" class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Timestamp</th>
+                        <th>User</th>
+                        <th>Role</th>
+                        <th>Action</th>
+                        <th>Target</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for l in logs %}
+                    <tr>
+                        <td>
+                            <span class="timestamp-badge">
+                                {{ l.createdAt ? l.createdAt|date('Y-m-d H:i:s') : 'N/A' }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="user-badge">
+                                {# Custom Name Mapping Logic #}
+                                {% if l.role == 'ROLE_ADMIN' %}
+                                    Richel
+                                {% elseif l.role == 'ROLE_STAFF' %}
+                                    Chelly
+                                {% else %}
+                                    {{ l.username }} (#{{ l.userId }})
+                                {% endif %}
+                            </span>
+                        </td>
+                        <td>
+                            {% if l.role == 'ROLE_ADMIN' %}
+                                <span class="role-badge admin">Admin</span>
+                            {% elseif l.role == 'ROLE_STAFF' %}
+                                <span class="role-badge staff">Staff</span>
+                            {% else %}
+                                <span class="role-badge user">User</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% set actionLower = l.action|lower %}
+                            {% if 'create' in actionLower %}
+                                <span class="action-badge create">{{ l.action }}</span>
+                            {% elseif 'update' in actionLower or 'edit' in actionLower %}
+                                <span class="action-badge update">{{ l.action }}</span>
+                            {% elseif 'delete' in actionLower %}
+                                <span class="action-badge delete">{{ l.action }}</span>
+                            {% elseif 'login' in actionLower %}
+                                <span class="action-badge login">{{ l.action }}</span>
+                            {% elseif 'logout' in actionLower %}
+                                <span class="action-badge logout">{{ l.action }}</span>
+                            {% else %}
+                                <span class="action-badge view">{{ l.action }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="target-badge">
+                                {{ l.target }}
+                            </span>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center">
+                            No activity logs found.
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/feather-icons/dist/feather.min.js"></script>
+    <script>
+        feather.replace();
+    </script>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            if ($.fn.DataTable.isDataTable('#logTable')) {
+                $('#logTable').DataTable().destroy();
+            }
+            
+            new DataTable('#logTable', {
+                responsive: true,
+                pageLength: 25,
+                lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
+                order: [[0, 'desc']],
+                scrollX: true,
+                language: {
+                    search: "Search logs:",
+                    lengthMenu: "Show _MENU_ entries",
+                    info: "Showing _START_ to _END_ of _TOTAL_ entries",
+                    zeroRecords: "No matching logs found",
+                    paginate: {
+                        first: "First",
+                        last: "Last",
+                        next: "Next",
+                        previous: "Previous"
+                    }
+                }
+            });
+        });
+    </script>
+{% endblock %}

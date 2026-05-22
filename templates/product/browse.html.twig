@@ -1,0 +1,308 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Browse Products - Chelswear{% endblock %}
+
+{% block stylesheets %}
+<style>
+    :root {
+        --accent: #d4a5d4;
+        --accent-dark: #c894c8;
+    }
+
+    .browse-header {
+        background: linear-gradient(135deg, #e8d0e0 0%, #f0d5e8 100%);
+        padding: 60px 40px;
+        text-align: center;
+        border-bottom: 1px solid #d0d0d0;
+    }
+
+    .browse-header h1 {
+        font-size: 42px;
+        font-weight: 900;
+        color: #000;
+        margin-bottom: 15px;
+    }
+
+    .browse-header p {
+        font-size: 16px;
+        color: #666;
+        margin: 0;
+    }
+
+    .browse-filters {
+        padding: 30px 40px;
+        background: #f9f9f9;
+        border-bottom: 1px solid #e0e0e0;
+        display: flex;
+        gap: 20px;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    .filter-label {
+        font-weight: 600;
+        color: #333;
+    }
+
+    .filter-input {
+        padding: 10px 15px;
+        border: 1px solid #d0d0d0;
+        border-radius: 6px;
+        font-size: 14px;
+        transition: all 0.3s ease;
+    }
+
+    .filter-input:focus {
+        outline: none;
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px rgba(212, 165, 212, 0.1);
+    }
+
+    .products-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 30px;
+        padding: 60px 40px;
+    }
+
+    .product-card {
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+        cursor: pointer;
+        border: 1px solid #f0f0f0;
+    }
+
+    .product-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 12px 28px rgba(212, 165, 212, 0.2);
+    }
+
+    .product-image {
+        width: 100%;
+        height: 280px;
+        background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #999;
+        font-size: 14px;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .product-image img,
+    .product-image .product-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
+
+    .product-image .product-img-placeholder {
+        font-size: 48px;
+        font-weight: 900;
+        color: rgba(255, 0, 149, 0.35);
+    }
+
+    .product-body {
+        padding: 20px;
+        text-align: center;
+    }
+
+    .product-name {
+        font-size: 18px;
+        font-weight: 700;
+        color: #000;
+        margin-bottom: 8px;
+        line-height: 1.3;
+    }
+
+    .product-price {
+        font-size: 22px;
+        font-weight: 900;
+        color: var(--accent);
+        margin-bottom: 15px;
+    }
+
+    .product-description {
+        font-size: 13px;
+        color: #666;
+        margin-bottom: 15px;
+        line-height: 1.4;
+        min-height: 40px;
+    }
+
+    .product-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 15px;
+    }
+
+    .btn-add-cart {
+        flex: 1;
+        background: var(--accent);
+        color: #000;
+        border: none;
+        padding: 10px 15px;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 14px;
+    }
+
+    .btn-add-cart:hover {
+        background: var(--accent-dark);
+        transform: translateY(-2px);
+    }
+
+    .btn-view-details {
+        flex: 1;
+        background: #f0f0f0;
+        color: #333;
+        border: 2px solid #e0e0e0;
+        padding: 10px 15px;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 14px;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .btn-view-details:hover {
+        border-color: var(--accent);
+        color: var(--accent);
+    }
+
+    .no-products {
+        grid-column: 1 / -1;
+        text-align: center;
+        padding: 80px 40px;
+        color: #999;
+    }
+
+    .no-products h2 {
+        font-size: 24px;
+        margin-bottom: 15px;
+        color: #666;
+    }
+
+    .no-products p {
+        font-size: 16px;
+    }
+
+    @media (max-width: 768px) {
+        .browse-header {
+            padding: 40px 20px;
+        }
+
+        .browse-header h1 {
+            font-size: 28px;
+        }
+
+        .browse-filters {
+            padding: 20px;
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .filter-input {
+            width: 100%;
+        }
+
+        .products-grid {
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            padding: 30px 20px;
+            gap: 20px;
+        }
+
+        .product-actions {
+            flex-direction: column;
+        }
+    }
+
+    /* Hide sidebar for product browsing */
+    .sidebar {
+        display: none !important;
+    }
+
+    .with-sidebar .content {
+        margin-left: 0 !important;
+        width: 100% !important;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="browse-header">
+    <h1>Our Products</h1>
+    <p>Discover our latest fashion collection</p>
+</div>
+
+<div class="browse-filters">
+    <label class="filter-label">Search:</label>
+    <input type="text" id="searchInput" class="filter-input" placeholder="Search products...">
+</div>
+
+<div class="products-grid" id="productsGrid">
+    {% if products|length > 0 %}
+        {% for product in products %}
+        <div class="product-card" data-product-name="{{ product.name|lower }}">
+            <div class="product-image">
+                {{ include('shop/_product_image.html.twig', {product: product, loop_index: loop.index0}) }}
+            </div>
+            <div class="product-body">
+                <h3 class="product-name">{{ product.name }}</h3>
+                <div class="product-price">${{ product.price }}</div>
+                {% if product.description %}
+                    <p class="product-description">{{ product.description|slice(0, 60) }}{% if product.description|length > 60 %}...{% endif %}</p>
+                {% endif %}
+                <div class="product-actions">
+                    {% if is_granted('IS_CUSTOMER') %}
+                        {{ include('shop/_add_to_cart.html.twig', {
+                            product: product,
+                            redirect: path('app_product_browse'),
+                            button_class: 'btn-add-cart',
+                            form_class: 'browse-add-cart-form',
+                        }) }}
+                    {% elseif not app.user %}
+                        <a href="{{ path('app_login') }}" class="btn-add-cart" style="text-align:center;text-decoration:none;display:flex;align-items:center;justify-content:center;white-space:nowrap;">Add to Cart</a>
+                    {% endif %}
+                    <a href="{{ path('app_shop_product_show', {'id': product.id}) }}" class="btn-view-details">View</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="no-products">
+            <h2>No Products Available</h2>
+            <p>Check back soon for our exciting new collection!</p>
+        </div>
+    {% endif %}
+</div>
+
+<script>
+    // Search functionality
+    document.getElementById('searchInput').addEventListener('keyup', function(e) {
+        const searchTerm = e.target.value.toLowerCase();
+        const products = document.querySelectorAll('.product-card');
+        
+        products.forEach(product => {
+            const name = product.dataset.productName;
+            if (name.includes(searchTerm)) {
+                product.style.display = '';
+            } else {
+                product.style.display = 'none';
+            }
+        });
+    });
+
+</script>
+{% endblock %}

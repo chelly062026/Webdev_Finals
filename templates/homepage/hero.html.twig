@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="{{ asset('styles/hero.css') }}">
+</head>
+<body>
+
+<section class="hero-section">
+    <div class="hero-watermark">FASHION</div>
+
+    <div class="hero-container">
+        <!-- Left Content -->
+        <div class="hero-content-left">
+            <h1 class="hero-heading">Are the spirit <br><span>of fashion</span></h1>
+            <p class="hero-tagline">Dress the way you like!</p>
+        </div>
+
+        <!-- Center Image Area -->
+        <div class="hero-image-wrapper">
+            <img src="{{ asset('about/model1.png') }}" alt="Model 1" class="main-model model-back">
+            
+            <img src="{{ asset('model2.png') }}" alt="Model 2" class="main-model model-front">
+            
+            <div class="product-tag tag-top">
+                <div class="tag-info">
+                    <span>Plain Shirts</span>
+                </div>
+                <div class="tag-icon">↗</div>
+            </div>
+
+            <div class="product-tag tag-bottom">
+                <div class="tag-info">
+                    <span>Customize Shirts</span>
+                </div>
+                <div class="tag-icon">↗</div>
+            </div>
+        </div>
+
+        <!-- Right Content -->
+        <div class="hero-content-right">
+            <div class="description-box">
+                <h3>Premium collections</h3>
+                <p>Timeless essentials for the modern minimalist. Designs simplify your wardrobe — and elevate your everyday.</p>
+                <a href="{{ path('app_shop') }}" class="shop-btn">Shop now &rarr;</a>
+            </div>
+
+            <div class="rating-box">
+                <div class="stars">★★★★★</div>
+                <div class="rating-text">4.9 / 450 Reviews</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+</body>
+</html>

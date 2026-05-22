@@ -1,0 +1,22 @@
+/* Import common dashboard styles */
+@import url('dashboard-common.css');
+
+/* Product Index specific styles */
+.price-badge {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: var(--white);
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 14px;
+    display: inline-block;
+}
+
+.date-badge {
+    background: var(--gray-100);
+    color: var(--gray-500);
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+}

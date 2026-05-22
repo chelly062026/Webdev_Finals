@@ -1,0 +1,10 @@
+{{ form_start(form, {attr: {enctype: 'multipart/form-data'}}) }}
+    {{ form_widget(form) }}
+    {% if product.image is defined and product.image %}
+        <div class="current-product-image" style="margin-bottom:1rem;">
+            <p style="font-size:13px;color:#666;margin-bottom:8px;">Current image:</p>
+            <img src="{{ asset('uploads/products/' ~ product.image) }}" alt="{{ product.name }}" style="max-width:200px;border-radius:8px;">
+        </div>
+    {% endif %}
+    <button class="btn">{{ button_label|default('Save') }}</button>
+{{ form_end(form) }}

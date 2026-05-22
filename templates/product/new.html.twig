@@ -1,0 +1,103 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}New Product{% endblock %}
+
+{% block body %}
+
+<style>
+    /* Page Wrapper */
+    .page-wrapper {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 32px;
+        width: 100%;
+        box-sizing: border-box;
+        font-family: Arial, sans-serif;
+    }
+
+    /* Form Card */
+    .form-card {
+        background: #ffffff;
+        width: 100%;
+        max-width: 520px;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+        margin: 0 auto;
+    }
+
+    .form-card h1 {
+        text-align: center;
+        margin-bottom: 25px;
+        color: #333;
+    }
+
+    /* Form Inputs */
+    .form-card input,
+    .form-card select,
+    .form-card textarea {
+        width: 100%;
+        padding: 10px 12px;
+        margin-bottom: 15px;
+        border-radius: 8px;
+        border: 1px solid #ccc;
+        font-size: 14px;
+    }
+
+    .form-card input:focus,
+    .form-card textarea:focus {
+        border-color: #92278f;
+        outline: none;
+    }
+
+    /* Form Buttons */
+    .form-card button {
+        width: 100%;
+        padding: 12px;
+        border-radius: 8px;
+        border: none;
+        background: #92278f;
+        color: #fff;
+        font-size: 15px;
+        cursor: pointer;
+        transition: background 0.3s ease;
+    }
+
+    .form-card button:hover {
+        background: #b344a1;
+    }
+
+    /* Back Button */
+    .btn-secondary {
+        text-decoration: none;
+        color: #555;
+        font-size: 14px;
+        border: 1px solid #ccc;
+        padding: 8px 12px;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        display: inline-block;
+        margin-top: 15px;
+    }
+
+    .btn-secondary:hover {
+        color: #fff;
+        background: #92278f;
+        border-color: #92278f;
+    }
+</style>
+
+<div class="page-wrapper">
+    <div class="form-card">
+        <h1>Create New Product</h1>
+
+        {{ include('product/_form.html.twig') }}
+
+        <a class="btn-secondary" href="{{ path('app_product_index') }}">
+            ← Back to list
+        </a>
+    </div>
+</div>
+
+{% endblock %}

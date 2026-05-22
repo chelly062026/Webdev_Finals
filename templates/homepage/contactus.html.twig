@@ -1,0 +1,89 @@
+<section class="contact-hero">
+    <div class="contact-hero-container">
+        <span class="contact-hero-label">WRITE TO US</span>
+        <h1>Get In Touch</h1>
+    </div>
+</section>
+
+<section class="contact-section" id="contact">
+    <div class="contact-container">
+        
+        <div class="contact-left">
+            <h2>Contact Us</h2>
+            <p>We are committed to processing the information in order to contact you and talk about your project.</p>
+            
+            <div class="contact-info-row"><strong>Email:</strong><br>richelpaculanang06@gmail.com</div>
+            <div class="contact-info-row"><strong>Address:</strong><br>6201 Dumaguete City, Negros Oriental</div>
+            <div class="contact-info-row"><strong>Phone:</strong><br>+63 926 8822 713</div>
+        </div>
+
+        <div class="contact-middle">
+            <form class="contact-form" id="contactForm" onsubmit="return false;">
+                <input name="name" type="text" placeholder="Name" required>
+                <input name="email" type="email" placeholder="Email" required>
+                <input name="website" type="text" placeholder="Website">
+                <textarea name="message" placeholder="Message" rows="6" required></textarea>
+                <button type="submit">Submit</button>
+            </form>
+            <div id="contactMessage" style="display:none;color:green;margin-top:12px;font-weight:bold;">Thanks! Your message was sent.</div>
+            <div id="contactError" style="display:none;color:red;margin-top:12px;font-weight:bold;">Sorry, unable to send your message, please try again.</div>
+        </div>
+
+        <div class="contact-right">
+            <div class="map-container">
+                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d62856.12643120155!2d123.26252934140618!3d9.310283088364273!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x33ab6ed9f4f4648d%3A0x6a00a402377b2f0a!2sDumaguete%2C%20Negros%20Oriental!5e0!3m2!1sen!2sph!4v1711380000000!5m2!1sen!2sph" loading="lazy"></iframe>
+            </div>
+        </div>
+
+    </div>
+</section>
+<script>
+    const contactForm = document.getElementById('contactForm');
+    const contactMessage = document.getElementById('contactMessage');
+    const contactError = document.getElementById('contactError');
+
+    async function submitBrevoContact(data) {
+        try {
+            const response = await fetch('{{ path('brevo_contact') }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify(data)
+            });
+
+            const payload = await response.json();
+            if (!response.ok) {
+                throw new Error(payload.error ?? 'Brevo submit failed');
+            }
+            return payload;
+        } catch (error) {
+            console.error(error);
+            throw error;
+        }
+    }
+
+    if (contactForm) {
+        contactForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            contactMessage.style.display = 'none';
+            contactError.style.display = 'none';
+
+            const data = {
+                name: contactForm.querySelector('[name="name"]').value,
+                email: contactForm.querySelector('[name="email"]').value,
+                website: contactForm.querySelector('[name="website"]').value,
+                message: contactForm.querySelector('[name="message"]').value,
+            };
+
+            try {
+                await submitBrevoContact(data);
+                contactMessage.style.display = 'block';
+                contactForm.reset();
+            } catch (error) {
+                contactError.style.display = 'block';
+            }
+        });
+    }
+</script>

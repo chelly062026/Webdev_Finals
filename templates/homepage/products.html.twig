@@ -1,0 +1,95 @@
+<script src="https://unpkg.com/feather-icons/dist/feather.min.js"></script>
+<link rel="stylesheet" href="{{ asset('styles/products.css') }}">
+
+<div class="products-section" id="product">
+    <h2 class="products-title">Best Sellers</h2>
+
+    <div class="product-grid">
+        
+        <div class="product-card">
+            <div class="product-media-wrapper">
+                <div class="product-main-display">
+                    <img id="mainImg-1" src="{{ asset('collection1.png') }}" alt="Printed Shirts">
+                </div>
+                <div class="product-thumb-bar">
+                    <img class="thumb-item active" src="{{ asset('collection1.png') }}" onclick="updatePreview(this, 'mainImg-1')">
+                    <img class="thumb-item" src="{{ asset('collection2.png') }}" onclick="updatePreview(this, 'mainImg-1')">
+                    <img class="thumb-item" src="{{ asset('collection3.png') }}" onclick="updatePreview(this, 'mainImg-1')">
+                </div>
+            </div>
+            <div class="product-details-content">
+                <div class="brand-label">CHELSWEAR</div>
+                <div class="product-name">Printed Shirts</div>
+                <div class="product-price">₱299.00</div>
+                <div class="product-meta">
+                    <span>5K+ Sold</span> • <span class="rating-stars">★★★★★</span> <span>4.9</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="product-card">
+            <div class="product-media-wrapper">
+                <div class="product-main-display">
+                    <img id="mainImg-2" src="{{ asset('plain3.png') }}" alt="Classic Tee">
+                </div>
+                <div class="product-thumb-bar">
+                    <img class="thumb-item active" src="{{ asset('plain3.png') }}" onclick="updatePreview(this, 'mainImg-2')">
+                    <img class="thumb-item" src="{{ asset('plain2.png') }}" onclick="updatePreview(this, 'mainImg-2')">
+                    <img class="thumb-item" src="{{ asset('plain1.png') }}" onclick="updatePreview(this, 'mainImg-2')">
+                </div>
+            </div>
+            <div class="product-details-content">
+                <div class="brand-label">CHELSWEAR</div>
+                <div class="product-name">Plain Shirts</div>
+                <div class="product-price">₱199.00</div>
+                <div class="product-meta">
+                    <span>2K+ Sold</span> • <span class="rating-stars">★★★★☆</span> <span>4.7</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="product-card">
+            <div class="product-media-wrapper">
+                <div class="product-main-display">
+                    <img id="mainImg-3" src="{{ asset('collection6.jpg') }}" alt="Custom">
+                </div>
+                <div class="product-thumb-bar">
+                    <img class="thumb-item active" src="{{ asset('collection4.jpg') }}" onclick="updatePreview(this, 'mainImg-3')">
+                    <img class="thumb-item" src="{{ asset('collection5.jpg') }}" onclick="updatePreview(this, 'mainImg-3')">
+                     <img class="thumb-item" src="{{ asset('collection7.jpg') }}" onclick="updatePreview(this, 'mainImg-3')">
+                </div>
+            </div>
+            <div class="product-details-content">
+                <div class="brand-label">CHELSWEAR</div>
+                <div class="product-name">Customized Shirts</div>
+                <div class="product-price">₱399.00</div>
+                <div class="product-meta">
+                    <span>1K+ Sold</span> • <span class="rating-stars">★★★★★</span> <span>5.0</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    function updatePreview(element, mainImgId) {
+        const mainImg = document.getElementById(mainImgId);
+        if (!mainImg) {
+            return;
+        }
+
+        mainImg.src = element.src;
+
+        const thumbBar = element.closest('.product-thumb-bar');
+        if (!thumbBar) {
+            return;
+        }
+
+        thumbBar.querySelectorAll('.thumb-item').forEach((thumb) => {
+            thumb.classList.remove('active');
+        });
+
+        element.classList.add('active');
+    }
+</script>

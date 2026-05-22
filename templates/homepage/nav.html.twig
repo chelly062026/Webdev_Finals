@@ -1,0 +1,417 @@
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+
+<style>
+    :root {
+        --brand-pink: #ff0095;
+        --soft-pink: #dc7eb5;
+        --bg-white: #ffffff;
+        --border-light: #f0f0f0;
+    }
+
+    .navbar-custom {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px); /* Modern frosted glass effect */
+        padding: 15px 5%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid var(--border-light);
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        transition: all 0.3s ease;
+    }
+
+    /* Logo Section */
+    .nav-logo {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-family: 'Montserrat', sans-serif;
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--brand-pink);
+        text-decoration: none;
+        letter-spacing: 2px;
+    }
+
+    .nav-logo-img {
+        height: 45px;
+        width: auto;
+        object-fit: contain;
+    }
+
+    /* Navigation Links */
+    .nav-links {
+        display: flex;
+        gap: 25px;
+        align-items: center;
+    }
+
+    .nav-links a:not(.nav-action) {
+        font-family: 'Montserrat', sans-serif;
+        text-decoration: none;
+        color: #333; /* Darker text for better readability */
+        font-size: 13px;
+        font-weight: 600;
+        letter-spacing: 0.8px;
+        text-transform: uppercase;
+        position: relative;
+        padding: 5px 0;
+        transition: color 0.3s ease;
+    }
+
+    /* Animated Underline Effect */
+    .nav-links a:not(.nav-action)::after {
+        content: '';
+        position: absolute;
+        width: 0;
+        height: 2px;
+        bottom: 0;
+        left: 0;
+        background-color: var(--brand-pink);
+        transition: width 0.3s ease;
+    }
+
+    .nav-links a:not(.nav-action):hover {
+        color: var(--brand-pink);
+    }
+
+    .nav-links a:not(.nav-action):hover::after {
+        width: 100%;
+    }
+
+    /* Action Buttons (Login/Register) */
+    .nav-action {
+        font-family: 'Montserrat', sans-serif;
+        text-decoration: none;
+        font-weight: 700;
+        font-size: 13px;
+        padding: 10px 24px;
+        border-radius: 50px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border: 1.5px solid var(--brand-pink);
+        white-space: nowrap;
+    }
+
+    .login-btn {
+        color: var(--brand-pink);
+        background: transparent;
+    }
+
+    .login-btn:hover {
+        background: #fff0f9;
+        transform: translateY(-1px);
+    }
+
+    .register-btn {
+        background: var(--brand-pink);
+        color: white !important;
+        box-shadow: 0 4px 15px rgba(255, 0, 149, 0.2);
+    }
+
+    .register-btn:hover {
+        background: var(--soft-pink);
+        border-color: var(--soft-pink);
+        box-shadow: 0 6px 20px rgba(220, 126, 181, 0.4);
+        transform: translateY(-2px);
+    }
+
+    .nav-cart-link {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: #333 !important;
+        padding: 8px !important;
+    }
+
+    .nav-cart-link::after {
+        display: none;
+    }
+
+    .nav-cart-link:hover {
+        color: var(--brand-pink) !important;
+    }
+
+    .cart-badge {
+        position: absolute;
+        top: 0;
+        right: 0;
+        min-width: 18px;
+        height: 18px;
+        padding: 0 5px;
+        border-radius: 999px;
+        background: var(--brand-pink);
+        color: #fff;
+        font-size: 10px;
+        font-weight: 700;
+        line-height: 18px;
+        text-align: center;
+    }
+
+    /* Mobile Hamburger Menu */
+    .mobile-menu-toggle {
+        display: none;
+        position: absolute;
+        top: 50%;
+        right: 18px;
+        transform: translateY(-50%);
+        background: var(--brand-pink);
+        border: none;
+        color: white;
+        width: 44px;
+        height: 44px;
+        border-radius: 8px;
+        cursor: pointer;
+        z-index: 1001;
+        transition: all 0.3s ease;
+        font-size: 24px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 8px rgba(255, 0, 149, 0.2);
+    }
+
+    .mobile-menu-toggle:hover {
+        transform: translateY(-50%) scale(1.08);
+        box-shadow: 0 4px 12px rgba(255, 0, 149, 0.3);
+    }
+
+    .mobile-menu-toggle:active {
+        transform: scale(0.95);
+    }
+
+    /* Mobile Sidebar */
+    .mobile-nav-sidebar {
+        position: fixed;
+        inset: 0;
+        width: 100%;
+        max-width: 100%;
+        height: 100vh;
+        transform: translateX(-100%);
+        visibility: hidden;
+        display: flex;
+        flex-direction: column;
+        background: white;
+        z-index: 1002;
+        transition: transform 0.3s ease, visibility 0.3s ease;
+        overflow-y: auto;
+        overflow-x: hidden;
+        padding-top: 70px;
+        overscroll-behavior: contain;
+    }
+
+    .mobile-nav-sidebar.active {
+        transform: translateX(0);
+        visibility: visible;
+    }
+
+    body.mobile-nav-open {
+        overflow: hidden;
+        position: fixed;
+        width: 100%;
+        height: 100vh;
+    }
+
+    .mobile-nav-sidebar-close {
+        position: absolute;
+        top: 16px;
+        right: 16px;
+        background: none;
+        border: none;
+        font-size: 28px;
+        cursor: pointer;
+        color: #333;
+        transition: color 0.3s ease;
+    }
+
+    .mobile-nav-sidebar-close:hover {
+        color: var(--brand-pink);
+    }
+
+    .mobile-nav-content {
+        padding: 20px;
+    }
+
+    .mobile-nav-item {
+        display: block;
+        padding: 14px 16px;
+        margin-bottom: 8px;
+        background: #f9f9f9;
+        border-radius: 8px;
+        text-decoration: none;
+        color: #333;
+        font-weight: 600;
+        font-size: 14px;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        border-left: 4px solid transparent;
+        transition: all 0.2s ease;
+    }
+
+    .mobile-nav-item:hover {
+        border-left-color: var(--brand-pink);
+        background: #fff0f9;
+        color: var(--brand-pink);
+    }
+
+    .mobile-nav-buttons {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        padding: 20px;
+        border-top: 1px solid var(--border-light);
+        margin-top: 20px;
+    }
+
+    .mobile-nav-buttons .nav-action {
+        text-align: center;
+        display: block;
+        width: 100%;
+    }
+
+    /* Responsive adjustment */
+    @media (max-width: 992px) {
+        .nav-links { gap: 15px; }
+        .navbar-custom { padding: 15px 20px; }
+    }
+
+    @media (max-width: 768px) {
+        .nav-links {
+            display: none;
+        }
+        .mobile-menu-toggle {
+            display: inline-flex !important;
+        }
+    }
+
+    @media (min-width: 769px) {
+        .mobile-menu-toggle {
+            display: none !important;
+        }
+    }
+</style>
+
+<div class="navbar-custom">
+    <a href="{{ path('app_homepage') }}" class="nav-logo">
+        <img src="{{ asset('logo.png') }}" alt="Chelswear" class="nav-logo-img"/>
+        CHELSWEAR
+    </a>
+
+    <button class="mobile-menu-toggle" onclick="toggleMobileNav()">
+        <i data-feather="menu"></i>
+    </button>
+    
+    <div class="nav-links">
+        <a href="{{ path('app_homepage') }}">Home</a>
+        <a href="{{ path('app_shop') }}">Shop</a>
+        <a href="{{ path('app_homepage') }}#collection">Collection</a>
+        {% if is_customer %}
+            <a href="{{ path('app_my_orders') }}">My Orders</a>
+        {% endif %}
+        <a href="{{ path('app_about') }}">About</a>
+        <a href="{{ path('app_contact') }}">Contact</a>
+        {% if is_customer %}
+            <a href="{{ path('app_cart') }}" class="nav-cart-link" title="Cart" aria-label="Cart ({{ cart_count }} items)">
+                <i data-feather="shopping-cart"></i>
+                {% if cart_count > 0 %}<span class="cart-badge">{{ cart_count }}</span>{% endif %}
+            </a>
+        {% endif %}
+        
+        {% if app.user %}
+            {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_STAFF') %}
+                <a href="{{ path('app_dashboard') }}">Dashboard</a>
+            {% endif %}
+            <a href="{{ path('app_logout') }}" class="nav-action login-btn">Logout</a>
+        {% else %}
+            <a href="{{ path('app_login') }}" class="nav-action login-btn">Login</a>
+            <a href="{{ path('app_register') }}" class="nav-action register-btn">Register</a>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Mobile Navigation Sidebar -->
+<div id="mobileNavSidebar" class="mobile-nav-sidebar">
+    <button class="mobile-nav-sidebar-close" onclick="closeMobileNav()">
+        <i data-feather="x"></i>
+    </button>
+    <div class="mobile-nav-content">
+        <a href="{{ path('app_homepage') }}" class="mobile-nav-item" onclick="closeMobileNav()">
+            <i data-feather="home" class="me-2"></i> Home
+        </a>
+        <a href="{{ path('app_shop') }}" class="mobile-nav-item" onclick="closeMobileNav()">
+            <i data-feather="shopping-bag" class="me-2"></i> Shop
+        </a>
+        {% if is_customer %}
+            <a href="{{ path('app_my_orders') }}" class="mobile-nav-item" onclick="closeMobileNav()">
+                <i data-feather="package" class="me-2"></i> My Orders
+            </a>
+        {% endif %}
+        <a href="{{ path('app_homepage') }}#collection" class="mobile-nav-item" onclick="closeMobileNav()">
+            <i data-feather="image" class="me-2"></i> Collection
+        </a>
+        <a href="{{ path('app_about') }}" class="mobile-nav-item" onclick="closeMobileNav()">
+            <i data-feather="info" class="me-2"></i> About
+        </a>
+        <a href="{{ path('app_contact') }}" class="mobile-nav-item" onclick="closeMobileNav()">
+            <i data-feather="mail" class="me-2"></i> Contact
+        </a>
+        {% if is_customer %}
+            <a href="{{ path('app_cart') }}" class="mobile-nav-item" onclick="closeMobileNav()">
+                <i data-feather="shopping-cart" class="me-2"></i> Cart{% if cart_count > 0 %} ({{ cart_count }}){% endif %}
+            </a>
+        {% endif %}
+        
+        {% if app.user and (is_granted('ROLE_ADMIN') or is_granted('ROLE_STAFF')) %}
+            <a href="{{ path('app_dashboard') }}" class="mobile-nav-item" onclick="closeMobileNav()">
+                <i data-feather="grid" class="me-2"></i> Dashboard
+            </a>
+        {% endif %}
+        
+        <div class="mobile-nav-buttons">
+            {% if app.user %}
+                <a href="{{ path('app_logout') }}" class="nav-action login-btn" style="color: #ff0095;">
+                    <i data-feather="log-out" class="me-1"></i> Logout
+                </a>
+            {% else %}
+                <a href="{{ path('app_login') }}" class="nav-action login-btn">
+                Login
+                </a>
+                <a href="{{ path('app_register') }}" class="nav-action register-btn">
+                Register
+                </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script src="https://unpkg.com/feather-icons/dist/feather.min.js"></script>
+<script>
+    feather.replace();
+</script>
+
+<script>
+function toggleMobileNav() {
+    const sidebar = document.getElementById('mobileNavSidebar');
+    const isActive = sidebar.classList.toggle('active');
+    document.body.classList.toggle('mobile-nav-open', isActive);
+}
+
+function closeMobileNav() {
+    const sidebar = document.getElementById('mobileNavSidebar');
+    sidebar.classList.remove('active');
+    document.body.classList.remove('mobile-nav-open');
+}
+
+// Close mobile menu when clicking outside
+document.addEventListener('click', function(event) {
+    const sidebar = document.getElementById('mobileNavSidebar');
+    const toggle = document.querySelector('.mobile-menu-toggle');
+    
+    if (!sidebar.contains(event.target) && !toggle.contains(event.target)) {
+        sidebar.classList.remove('active');
+        document.body.classList.remove('mobile-nav-open');
+    }
+});
+</script>

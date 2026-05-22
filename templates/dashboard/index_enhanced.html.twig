@@ -1,0 +1,525 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block stylesheets %}
+<style>
+    /* Dashboard-specific overrides and styles */
+    body {
+        font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    }
+
+    /* Welcome Card */
+    .welcome-card {
+        background: linear-gradient(135deg, var(--accent) 0%, #b344a1 100%);
+        color: white;
+        padding: 40px;
+        border-radius: 16px;
+        margin-bottom: 32px;
+        box-shadow: 0 12px 32px rgba(146, 39, 143, 0.25);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .welcome-card::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -10%;
+        width: 300px;
+        height: 300px;
+        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+        border-radius: 50%;
+        pointer-events: none;
+    }
+
+    .welcome-card > * {
+        position: relative;
+        z-index: 1;
+    }
+
+    .welcome-title {
+        font-family: 'Poppins', sans-serif;
+        font-size: 32px;
+        font-weight: 800;
+        margin-bottom: 12px;
+        letter-spacing: -0.8px;
+    }
+
+    .welcome-subtitle {
+        font-size: 16px;
+        opacity: 0.92;
+        font-weight: 400;
+        margin-bottom: 20px;
+    }
+
+    .role-badge {
+        display: inline-block;
+        padding: 10px 20px;
+        border-radius: 28px;
+        font-size: 13px;
+        font-weight: 700;
+        margin-top: 16px;
+        background-color: rgba(255, 255, 255, 0.28);
+        border: 2px solid rgba(255, 255, 255, 0.5);
+        backdrop-filter: blur(20px);
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 24px;
+        margin-bottom: 40px;
+    }
+
+    .stat-card {
+        background: white;
+        padding: 28px;
+        border-radius: 14px;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+        border: 1px solid #f0f0f0;
+        text-align: center;
+        transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, var(--accent), #b344a1);
+        transform: scaleX(0);
+        transition: transform 0.35s ease;
+        transform-origin: left;
+    }
+
+    .stat-card:hover::before {
+        transform: scaleX(1);
+    }
+
+    .stat-card:hover {
+        box-shadow: 0 8px 24px rgba(146, 39, 143, 0.15);
+        transform: translateY(-4px);
+    }
+
+    .stat-icon {
+        font-size: 40px;
+        margin-bottom: 16px;
+        color: var(--accent);
+        opacity: 0.85;
+        transition: all 0.3s ease;
+    }
+
+    .stat-card:hover .stat-icon {
+        opacity: 1;
+        transform: scale(1.1) rotate(5deg);
+    }
+
+    .stat-label {
+        font-size: 12px;
+        color: #999;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        margin-bottom: 12px;
+        font-weight: 700;
+    }
+
+    .stat-value {
+        font-family: 'Poppins', sans-serif;
+        font-size: 36px;
+        font-weight: 800;
+        color: var(--accent);
+        line-height: 1;
+    }
+
+    /* Quick Actions */
+    .quick-actions {
+        background: white;
+        padding: 32px;
+        border-radius: 14px;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+        border: 1px solid #f0f0f0;
+        margin-top: 40px;
+    }
+
+    .quick-actions-title {
+        font-family: 'Poppins', sans-serif;
+        font-size: 20px;
+        font-weight: 800;
+        margin-bottom: 28px;
+        color: #1a1a1a;
+        letter-spacing: -0.4px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .quick-actions-title::before {
+        content: '';
+        display: inline-block;
+        width: 4px;
+        height: 24px;
+        background: linear-gradient(180deg, var(--accent), #b344a1);
+        border-radius: 2px;
+    }
+
+    .action-buttons {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 20px;
+    }
+
+    .action-btn {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 14px;
+        padding: 24px 18px;
+        background: linear-gradient(135deg, #f9f9f9 0%, #f0f0f0 100%);
+        border: 2px solid #e8e8e8;
+        border-radius: 12px;
+        text-decoration: none;
+        color: #333;
+        font-weight: 700;
+        font-size: 14px;
+        text-align: center;
+        transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+    }
+
+    .action-btn::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(135deg, var(--accent), #b344a1);
+        border-radius: 10px;
+        opacity: 0;
+        transition: opacity 0.35s ease;
+        z-index: -1;
+    }
+
+    .action-btn:hover::after {
+        opacity: 1;
+    }
+
+    .action-btn:hover {
+        color: white;
+        border-color: var(--accent);
+        transform: translateY(-6px);
+        box-shadow: 0 12px 28px rgba(146, 39, 143, 0.3);
+    }
+
+    .action-icon {
+        font-size: 28px;
+        opacity: 0.75;
+        transition: all 0.35s ease;
+    }
+
+    .action-btn:hover .action-icon {
+        opacity: 1;
+        transform: scale(1.2) rotateY(360deg);
+    }
+
+    /* Access Message */
+    .access-message {
+        background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+        padding: 28px;
+        border-radius: 14px;
+        border-left: 5px solid var(--accent);
+        margin-top: 40px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+        position: relative;
+    }
+
+    .access-message::before {
+        content: '⚠️';
+        position: absolute;
+        top: 24px;
+        right: 24px;
+        font-size: 24px;
+        opacity: 0.2;
+    }
+
+    .access-message p {
+        margin: 0;
+        color: #555;
+        font-size: 15px;
+        line-height: 1.7;
+        font-weight: 500;
+    }
+
+    .access-message strong {
+        color: var(--accent);
+        font-weight: 700;
+    }
+
+    /* Additional enhancements */
+    /* Content area - responsive */
+    .content {
+        padding: 32px;
+        margin: 0;
+        width: 100%;
+    }
+
+    /* When sidebar is present */
+    .with-sidebar .content {
+        margin-left: 260px;
+        width: calc(100% - 260px);
+        padding: 32px;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 1024px) {
+        .content {
+            padding: 16px;
+        }
+        
+        .with-sidebar .content {
+            margin-left: 0;
+            width: 100%;
+            padding-top: 70px;
+            padding-left: 16px;
+            padding-right: 16px;
+            padding-bottom: 16px;
+        }
+
+        .welcome-card {
+            padding: 24px;
+        }
+
+        .welcome-title {
+            font-size: 22px;
+        }
+
+        .welcome-subtitle {
+            font-size: 12px;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .content {
+            padding: 12px;
+        }
+
+        .with-sidebar .content {
+            margin-left: 0 !important;
+            width: 100% !important;
+            padding-top: 70px;
+            padding-left: 12px;
+            padding-right: 12px;
+            padding-bottom: 12px;
+        }
+
+        .welcome-card {
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+
+        .welcome-title {
+            font-size: 18px;
+        }
+
+        .welcome-subtitle {
+            font-size: 11px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .content {
+            padding: 8px;
+        }
+
+        .with-sidebar .content {
+            padding-top: 70px;
+            padding-left: 8px;
+            padding-right: 8px;
+            padding-bottom: 8px;
+        }
+
+        .welcome-card {
+            padding: 16px;
+        }
+
+        .welcome-title {
+            font-size: 16px;
+        }
+
+        .welcome-subtitle {
+            font-size: 10px;
+        }
+    }
+
+    .content > :first-child {
+        animation: slideInDown 0.6s ease-out;
+    }
+
+    @keyframes slideInDown {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .stats-grid > * {
+        animation: fadeIn 0.6s ease-out forwards;
+    }
+
+    .stat-card:nth-child(1) { animation-delay: 0.1s; }
+    .stat-card:nth-child(2) { animation-delay: 0.2s; }
+    .stat-card:nth-child(3) { animation-delay: 0.3s; }
+    .stat-card:nth-child(4) { animation-delay: 0.4s; }
+
+    /* Responsive adjustments */
+    @media (max-width: 1024px) {
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 768px) {
+        .welcome-card {
+            padding: 28px;
+        }
+
+        .welcome-title {
+            font-size: 26px;
+        }
+
+        .stats-grid {
+            grid-template-columns: 1fr;
+            gap: 16px;
+        }
+
+        .action-buttons {
+            grid-template-columns: 1fr;
+        }
+
+        .quick-actions {
+            padding: 24px;
+        }
+
+        .content {
+            padding: 20px;
+            margin-left: 0 !important; /* remove nudge on small screens */
+            width: 100% !important;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="container-fluid content">
+    <!-- Welcome Card -->
+    <div class="welcome-card">
+        {% if app.user %}
+            <h1 class="welcome-title">Welcome back, {{ app.user.username }}! 👋</h1>
+        {% else %}
+            <h1 class="welcome-title">Welcome to CHELSWEAR! 🎉</h1>
+        {% endif %}
+        <p class="welcome-subtitle">Here's what's happening with your business today.</p>
+        
+        {% if app.user %}
+            {% if is_granted('ROLE_ADMIN') %}
+                <span class="role-badge admin"><i data-feather="shield" class="me-1"></i> Administrator - Full Access</span>
+            {% elseif is_granted('ROLE_STAFF') %}
+                <span class="role-badge staff"><i data-feather="star" class="me-1"></i> Staff Member - Management Access</span>
+            {% else %}
+                <span class="role-badge user"><i data-feather="user" class="me-1"></i> Regular User - Limited Access</span>
+            {% endif %}
+        {% endif %}
+    </div>
+
+    {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_STAFF') %}
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <i data-feather="package" class="stat-icon"></i>
+                <div class="stat-label">Total Products</div>
+                <div class="stat-value">0</div>
+            </div>
+            
+            <div class="stat-card">
+                <i data-feather="users" class="stat-icon"></i>
+                <div class="stat-label">Total Customers</div>
+                <div class="stat-value">0</div>
+            </div>
+            
+            <div class="stat-card">
+                <i data-feather="shopping-cart" class="stat-icon"></i>
+                <div class="stat-label">Total Orders</div>
+                <div class="stat-value">0</div>
+            </div>
+            
+            <div class="stat-card">
+                <i data-feather="dollar-sign" class="stat-icon"></i>
+                <div class="stat-label">Revenue</div>
+                <div class="stat-value">₱0</div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+            <h2 class="quick-actions-title">Quick Actions</h2>
+            <div class="action-buttons">
+                <a href="{{ path('app_product_new') }}" class="action-btn">
+                    <i data-feather="plus-circle" class="action-icon"></i>
+                    Add Product
+                </a>
+                
+                <a href="{{ path('app_customer_new') }}" class="action-btn">
+                    <i data-feather="user-plus" class="action-icon"></i>
+                    Add Customer
+                </a>
+                
+                <a href="{{ path('app_order_new') }}" class="action-btn">
+                    <i data-feather="shopping-bag" class="action-icon"></i>
+                    New Order
+                </a>
+                
+                <a href="{{ path('app_product_index') }}" class="action-btn">
+                    <i data-feather="list" class="action-icon"></i>
+                    All Products
+                </a>
+            </div>
+        </div>
+    {% else %}
+        <!-- Access Message for Regular Users -->
+        <div class="access-message">
+            <p><strong>Limited Access:</strong> You are viewing the dashboard as a regular user. Contact your administrator for additional permissions to access more features.</p>
+        </div>
+    {% endif %}
+</div>
+
+<!-- Add Feather Icons for the icons -->
+<script src="https://unpkg.com/feather-icons/dist/feather.min.js"></script>
+<script>
+    feather.replace();
+</script>
+
+{% endblock %}
