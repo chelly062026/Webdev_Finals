@@ -33,8 +33,9 @@ RUN composer install --no-interaction --no-scripts --optimize-autoloader && \
 # Copy the application source after dependencies are cached.
 COPY . .
 
-# Install frontend dependencies and build assets
-RUN npm install && npm run build
+# Install frontend dependencies and build assets (skip if no package.json)
+# If the project doesn't use npm (no package.json), skip this step to avoid build failures.
+RUN if [ -f package.json ]; then npm install && npm run build; else echo "no package.json, skipping npm build"; fi
 
 # Create a default .env file if one does not already exist.
 RUN if [ ! -f /app/.env ]; then \
