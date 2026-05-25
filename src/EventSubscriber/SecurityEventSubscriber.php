@@ -8,10 +8,11 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Security\Http\Event\InteractiveLoginEvent;
 use Symfony\Component\Security\Http\Event\LogoutEvent;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 class SecurityEventSubscriber implements EventSubscriberInterface
 {
-    public function __construct(private EntityManagerInterface $em)
+    public function __construct(private EntityManagerInterface $em, private TokenStorageInterface $tokenStorage)
     {
     }
 
@@ -44,7 +45,7 @@ class SecurityEventSubscriber implements EventSubscriberInterface
 
     public function onLogout(LogoutEvent $event): void
     {
-        $token = $event->getToken();
+        $token = $this->tokenStorage->getToken();
         if (!$token instanceof TokenInterface) {
             return;
         }

@@ -2,9 +2,7 @@
 
 namespace App\Controller;
 
-use App\Entity\ActivityLog;
 use App\Repository\UserRepository;
-use Doctrine\ORM\EntityManagerInterface;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -20,9 +18,8 @@ class ApiLoginController extends AbstractController
         Request $request,
         UserRepository $userRepository,
         UserPasswordHasherInterface $passwordHasher,
-        JWTTokenManagerInterface $jwtManager,
-        EntityManagerInterface $em,
-        LoggerInterface $logger
+        JWTTokenManagerInterface $jwtManager
+        , LoggerInterface $logger
     ): JsonResponse {
 
         // Debugging: write a concise entry to var/log/login_debug.log for each attempt
@@ -70,28 +67,14 @@ class ApiLoginController extends AbstractController
         @file_put_contents($logPath, json_encode(['time' => date('c'), 'note' => 'login_success', 'username' => $data['username'], 'userId' => $user->getId(), 'ip' => $request->getClientIp()]) . PHP_EOL, FILE_APPEND | LOCK_EX);
         $logger->info('Login success', ['username' => $data['username'], 'userId' => $user->getId()]);
 
-        $activityLog = new ActivityLog();
-        $activityLog->setUserId($user->getId());
-        $activityLog->setUsername($user->getUserIdentifier());
-        $roles = method_exists($user, 'getRoles') ? $user->getRoles() : [];
-        $activityLog->setRole(is_array($roles) && count($roles) ? $roles[0] : null);
-        $activityLog->setAction('LOGIN');
-        $activityLog->setTarget('User login');
-
-        $em->persist($activityLog);
-        $em->flush();
-
         $token = $jwtManager->create($user);
 
         return new JsonResponse([
-            'success' => true,
             'token' => $token,
             'user' => [
                 'id' => $user->getId(),
                 'username' => $user->getUsername()
-            ],
-            'redirectTo' => '/api/dashboard',
-            'dashboardUrl' => '/api/dashboard'
+            ]
         ]);
     }
 }
