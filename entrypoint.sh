@@ -22,10 +22,12 @@ if [ ! -f config/jwt/private.pem ]; then
 fi
 
 echo "Running migrations..."
-php bin/console doctrine:migrations:migrate --no-interaction --allow-no-migration || true
+php bin/console doctrine:migrations:migrate --no-interaction --allow-no-migration || echo "Migration failed or already applied"
 
 echo "Loading fixtures..."
-php bin/console doctrine:fixtures:load --append --no-interaction || true
+# Only load fixtures if not in production or if specifically requested
+# For this project, we'll keep it but ensure it doesn't break deployment
+php bin/console doctrine:fixtures:load --append --no-interaction || echo "Fixtures loading failed (possibly due to existing data)"
 
 echo "Starting Nginx..."
 nginx -g "daemon off;"

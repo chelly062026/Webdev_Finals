@@ -18,29 +18,40 @@ class UserFixtures extends Fixture
     
     public function load(ObjectManager $manager): void
     {
-        $admin = new User();
-        $admin->setUsername('admin');
-        $admin->setRoles(['ROLE_ADMIN']);
-        $admin->setEmail('richelpaculanang06@gmail.com');
-        $hashedPassword = $this->passwordHasher->hashPassword($admin, 'admin123');
-        $admin->setPassword($hashedPassword);
-        $manager->persist($admin);
+        $users = [
+            [
+                'username' => 'admin',
+                'email' => 'richelpaculanang06@gmail.com',
+                'roles' => ['ROLE_ADMIN'],
+                'password' => 'admin123'
+            ],
+            [
+                'username' => 'user',
+                'email' => 'richelpaculanang25@gmail.com',
+                'roles' => ['ROLE_USER'],
+                'password' => 'user123'
+            ],
+            [
+                'username' => 'staff',
+                'email' => 'paculanangrichel24@gmail.com',
+                'roles' => ['ROLE_STAFF'],
+                'password' => 'staff123'
+            ],
+        ];
 
-        $user = new User();
-        $user->setUsername('user');
-        $user->setRoles(['ROLE_USER']);
-        $user->setEmail('richelpaculanang25@gmail.com');
-        $hashedPassword = $this->passwordHasher->hashPassword($user, 'user123');
-        $user->setPassword($hashedPassword);
-        $manager->persist($user);
-
-        $staff = new User();
-        $staff->setUsername('staff');
-        $staff->setRoles(['ROLE_STAFF']);
-        $staff->setEmail('paculanangrichel24@gmail.com');
-        $hashedPassword = $this->passwordHasher->hashPassword($staff, 'staff123');
-        $staff->setPassword($hashedPassword);
-        $manager->persist($staff);
+        foreach ($users as $userData) {
+            $existingUser = $manager->getRepository(User::class)->findOneBy(['email' => $userData['email']]);
+            
+            if (!$existingUser) {
+                $user = new User();
+                $user->setUsername($userData['username']);
+                $user->setEmail($userData['email']);
+                $user->setRoles($userData['roles']);
+                $hashedPassword = $this->passwordHasher->hashPassword($user, $userData['password']);
+                $user->setPassword($hashedPassword);
+                $manager->persist($user);
+            }
+        }
 
         $manager->flush();
     }
