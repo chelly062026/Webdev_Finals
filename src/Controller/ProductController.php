@@ -7,6 +7,7 @@ use App\Form\ProductType;
 use App\Repository\ProductRepository;
 use App\Service\ProductImageUploader;
 use App\Entity\StockLog;
+use App\Repository\StockLogRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormInterface;
@@ -133,11 +134,13 @@ final class ProductController extends AbstractController
         Product $product,
         EntityManagerInterface $entityManager,
         ProductImageUploader $imageUploader,
+        StockLogRepository $stockLogRepository,
     ): Response {
         $this->checkProductOwnership($product);
 
         if ($this->isCsrfTokenValid('delete'.$product->getId(), $request->getPayload()->getString('_token'))) {
             $imageUploader->remove($product->getImage());
+            $stockLogRepository->deleteByProduct($product);
             $entityManager->remove($product);
             $entityManager->flush();
             $this->addFlash('success', 'Product deleted successfully!');
