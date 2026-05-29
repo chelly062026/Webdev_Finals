@@ -10,7 +10,7 @@
 <div class="shop-page">
     <a href="{{ path('app_my_orders') }}" class="shop-back-link">&larr; My Orders</a>
 
-    <div class="checkout-order-detail">
+    <div id="live-customer-order-detail-container" class="checkout-order-detail">
         <header class="shop-page-header">
             <h1>Order #{{ order.id }}</h1>
             <p>Placed on {{ order.createdAt|date('F d, Y \\a\\t g:i A') }}</p>
@@ -45,4 +45,40 @@
         <a href="{{ path('app_shop') }}" class="btn-shop-cart">Shop Again</a>
     </div>
 </div>
+
+<script>
+    function refreshOrderDetail() {
+        fetch(window.location.href)
+            .then(response => response.text())
+            .then(htmlString => {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(htmlString, 'text/html');
+                const incoming = doc.getElementById('live-customer-order-detail-container');
+                const current = document.getElementById('live-customer-order-detail-container');
+                if (incoming && current && incoming.innerHTML.trim() !== current.innerHTML.trim()) {
+                    current.innerHTML = incoming.innerHTML;
+                }
+            })
+            .catch(err => console.warn("Order detail sync missed", err));
+    }
+
+    // Check every 5 seconds
+    setInterval(refreshOrderDetail, 5000);
+
+    // WebSocket Turbo
+    const SOCKET_URL = 'ws://localhost:8080';
+    let socket;
+    function connectWS() {
+        socket = new WebSocket(SOCKET_URL);
+        socket.onmessage = (e) => {
+            const data = JSON.parse(e.data);
+            if ((data.type === 'order.updated' || data.type === 'order.created') && 
+                (data.data && data.data.orderId == {{ order.id }})) {
+                refreshOrderDetail();
+            }
+        };
+        socket.onclose = () => setTimeout(connectWS, 5000);
+    }
+    connectWS();
+</script>
 {% endblock %}
