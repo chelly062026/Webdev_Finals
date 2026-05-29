@@ -481,92 +481,93 @@
     </div>
 
     {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_STAFF') %}
-        <div class="stats-grid">
-            <div class="stat-card">
-                <i data-feather="package" class="stat-icon"></i>
-                <div class="stat-label">Total Products</div>
-                <div class="stat-value">{{ productCount }}</div>
+        <div id="live-dashboard-container">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <i data-feather="package" class="stat-icon"></i>
+                    <div class="stat-label">Total Products</div>
+                    <div class="stat-value">{{ productCount }}</div>
+                </div>
+                
+                <div class="stat-card">
+                    <i data-feather="users" class="stat-icon"></i>
+                    <div class="stat-label">Total Customers</div>
+                    <div class="stat-value">{{ customerCount }}</div>
+                </div>
+                
+                <div class="stat-card">
+                    <i data-feather="shopping-cart" class="stat-icon"></i>
+                    <div class="stat-label">Total Orders</div>
+                    <div class="stat-value">{{ orderCount }}</div>
+                </div>
+                
+                <div class="stat-card">
+                    <i data-feather="dollar-sign" class="stat-icon"></i>
+                    <div class="stat-label">Revenue</div>
+                    <div class="stat-value">${{ totalRevenue|number_format(2, '.', ',') }}</div>
+                </div>
             </div>
-            
-            <div class="stat-card">
-                <i data-feather="users" class="stat-icon"></i>
-                <div class="stat-label">Total Customers</div>
-                <div class="stat-value">{{ customerCount }}</div>
+
+            {# Status summary #}
+            <div class="status-summary-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Pending</div>
+                    <div class="stat-value">{{ statusCounts.pending|default(0) }}</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Processing</div>
+                    <div class="stat-value">{{ statusCounts.processing|default(0) }}</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Completed</div>
+                    <div class="stat-value">{{ statusCounts.completed|default(0) }}</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Cancelled</div>
+                    <div class="stat-value">{{ statusCounts.cancelled|default(0) }}</div>
+                </div>
             </div>
-            
-            <div class="stat-card">
-                <i data-feather="shopping-cart" class="stat-icon"></i>
-                <div class="stat-label">Total Orders</div>
-                <div class="stat-value">{{ orderCount }}</div>
-            </div>
-            
-            <div class="stat-card">
-                <i data-feather="dollar-sign" class="stat-icon"></i>
-                <div class="stat-label">Revenue</div>
-                <div class="stat-value">${{ totalRevenue|number_format(2, '.', ',') }}</div>
+
+            <div class="dashboard-grid">
+                <div class="quick-actions">
+                    <div class="quick-actions-title">Recent Orders</div>
+                    {% if recentOrders is defined and recentOrders|length > 0 %}
+                        <ul id="live-orders-list" style="list-style:none; padding:0; margin:0;">
+                            {% for order in recentOrders %}
+                                <li>
+                                    <div class="order-info">
+                                        <strong>#{{ order.id }}</strong> — {{ order.customer ? order.customer.name : 'No Customer' }}
+                                        <div class="order-meta">{{ order.createdAt ? order.createdAt|date('Y-m-d H:i') : '' }}</div>
+                                    </div>
+                                    <div class="order-details">
+                                        <div>${{ order.totalAmount is not null ? order.totalAmount|number_format(2, '.', ',') : '0.00' }}</div>
+                                        <span class="order-status">{{ order.status|default('pending') }}</span>
+                                    </div>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p style="margin:0; color:#666;">No recent orders.</p>
+                    {% endif %}
+                </div>
+
+                <div class="quick-actions">
+                    <div class="quick-actions-title">Recent Products</div>
+                    {% if recentProducts is defined and recentProducts|length > 0 %}
+                        <ul style="list-style:none; padding:0; margin:0;">
+                            {% for p in recentProducts %}
+                                <li style="padding:12px 0; border-bottom:1px solid #f3f3f3;">
+                                    <strong>{{ p.name }}</strong>
+                                    <div style="font-size:12px; color:#666; margin-top:4px;">Added {{ p.createdAt ? p.createdAt|date('Y-m-d') : '' }}</div>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p style="margin:0; color:#666;">No recent products.</p>
+                    {% endif %}
+                </div>
             </div>
         </div>
-
-        {# Status summary #}
-        <div class="status-summary-grid">
-            <div class="stat-card">
-                <div class="stat-label">Pending</div>
-                <div class="stat-value">{{ statusCounts.pending|default(0) }}</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">Processing</div>
-                <div class="stat-value">{{ statusCounts.processing|default(0) }}</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">Completed</div>
-                <div class="stat-value">{{ statusCounts.completed|default(0) }}</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">Cancelled</div>
-                <div class="stat-value">{{ statusCounts.cancelled|default(0) }}</div>
-            </div>
-        </div>
-
-        <div class="dashboard-grid">
-            <div class="quick-actions">
-                <div class="quick-actions-title">Recent Orders</div>
-                {% if recentOrders is defined and recentOrders|length > 0 %}
-                    <ul id="live-orders-list" style="list-style:none; padding:0; margin:0;">
-                        {% for order in recentOrders %}
-                            <li>
-                                <div class="order-info">
-                                    <strong>#{{ order.id }}</strong> — {{ order.customer ? order.customer.name : 'No Customer' }}
-                                    <div class="order-meta">{{ order.createdAt ? order.createdAt|date('Y-m-d H:i') : '' }}</div>
-                                </div>
-                                <div class="order-details">
-                                    <div>${{ order.totalAmount is not null ? order.totalAmount|number_format(2, '.', ',') : '0.00' }}</div>
-                                    <span class="order-status">{{ order.status|default('pending') }}</span>
-                                </div>
-                            </li>
-                        {% endfor %}
-                    </ul>
-                {% else %}
-                    <p style="margin:0; color:#666;">No recent orders.</p>
-                {% endif %}
-            </div>
-
-            <div class="quick-actions">
-                <div class="quick-actions-title">Recent Products</div>
-                {% if recentProducts is defined and recentProducts|length > 0 %}
-                    <ul style="list-style:none; padding:0; margin:0;">
-                        {% for p in recentProducts %}
-                            <li style="padding:12px 0; border-bottom:1px solid #f3f3f3;">
-                                <strong>{{ p.name }}</strong>
-                                <div style="font-size:12px; color:#666; margin-top:4px;">Added {{ p.createdAt ? p.createdAt|date('Y-m-d') : '' }}</div>
-                            </li>
-                        {% endfor %}
-                    </ul>
-                {% else %}
-                    <p style="margin:0; color:#666;">No recent products.</p>
-                {% endif %}
-            </div>
-        </div>
-
     {% endif %}
 
 
@@ -584,13 +585,19 @@
                 const doc = parser.parseFromString(htmlString, 'text/html');
                 
                 // Track down the container variants
-                const incomingOrdersList = doc.getElementById('live-orders-list');
-                const currentOrdersList = document.getElementById('live-orders-list');
+                const incomingContainer = doc.getElementById('live-dashboard-container');
+                const currentContainer = document.getElementById('live-dashboard-container');
                 
-                if (incomingOrdersList && currentOrdersList) {
-                    const wasDifferent = currentOrdersList.innerHTML !== incomingOrdersList.innerHTML;
-                    // Update only the order entries inside the viewport
-                    currentOrdersList.innerHTML = incomingOrdersList.innerHTML;
+                if (incomingContainer && currentContainer) {
+                    const wasDifferent = currentContainer.innerHTML !== incomingContainer.innerHTML;
+                    
+                    // Instant swap of the entire dashboard section (Stats + Orders)
+                    currentContainer.innerHTML = incomingContainer.innerHTML;
+                    
+                    // Refresh feather icons for the new HTML
+                    if (typeof feather !== 'undefined') {
+                        feather.replace();
+                    }
                     
                     // If content actually changed, broadcast to others
                     if (wasDifferent && socket && socket.readyState === WebSocket.OPEN) {
@@ -601,10 +608,21 @@
             .catch(error => console.warn("Live order sync missed: ", error));
     }
 
-    // Runs silently behind the scenes every 5 seconds
-    setInterval(fetchAndSwapOrders, 5000);
+    // SMART POLLING - Checks every 2 seconds for a "near zero-second" feel
+    const POLLING_INTERVAL = 2000; 
+    let pollingActive = true;
 
-    // REAL-TIME WEBSOCKET INTEGRATION
+    function startSmartPolling() {
+        setInterval(() => {
+            if (pollingActive) {
+                fetchAndSwapOrders();
+            }
+        }, POLLING_INTERVAL);
+    }
+
+    startSmartPolling();
+
+    // REAL-TIME WEBSOCKET INTEGRATION (Turbo Option)
     const SOCKET_URL = 'ws://localhost:8080';
     let socket;
 
