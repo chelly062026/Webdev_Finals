@@ -9,41 +9,90 @@
             <p>Track stock changes and who updated quantities.</p>
         </div>
 
-        <div class="activity-container">
-            <table id="stockLogTable" class="table table-striped">
-                <thead>
-                    <tr>
-                        <th>Timestamp</th>
-                        <th>Product</th>
-                        <th>Action</th>
-                        <th>Before</th>
-                        <th>After</th>
-                        <th>Change</th>
-                        <th>User</th>
-                        <th>Role</th>
-                        <th>Note</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for log in logs %}
+        <div id="live-stock-container">
+            <div class="activity-container">
+                <table id="stockLogTable" class="table table-striped">
+                    <thead>
                         <tr>
-                            <td>{{ log.createdAt ? log.createdAt|date('Y-m-d H:i:s') : 'N/A' }}</td>
-                            <td>{{ log.product.name }} (#{{ log.product.id }})</td>
-                            <td>{{ log.action }}</td>
-                            <td>{{ log.quantityBefore is not null ? log.quantityBefore : '-' }}</td>
-                            <td>{{ log.quantityAfter is not null ? log.quantityAfter : '-' }}</td>
-                            <td>{{ log.changeAmount is not null ? log.changeAmount : '-' }}</td>
-                            <td>{{ log.username ?: 'Unknown' }}</td>
-                            <td>{{ log.role ?: 'Unknown' }}</td>
-                            <td>{{ log.note ?: '-' }}</td>
+                            <th>Timestamp</th>
+                            <th>Product</th>
+                            <th>Action</th>
+                            <th>Before</th>
+                            <th>After</th>
+                            <th>Change</th>
+                            <th>User</th>
+                            <th>Role</th>
+                            <th>Note</th>
                         </tr>
-                    {% else %}
-                        <tr>
-                            <td colspan="9" class="text-center">No stock log entries found.</td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        {% for log in logs %}
+                            <tr>
+                                <td>{{ log.createdAt ? log.createdAt|date('Y-m-d H:i:s') : 'N/A' }}</td>
+                                <td>{{ log.product.name }} (#{{ log.product.id }})</td>
+                                <td>{{ log.action }}</td>
+                                <td>{{ log.quantityBefore is not null ? log.quantityBefore : '-' }}</td>
+                                <td>{{ log.quantityAfter is not null ? log.quantityAfter : '-' }}</td>
+                                <td>{{ log.changeAmount is not null ? log.changeAmount : '-' }}</td>
+                                <td>{{ log.username ?: 'Unknown' }}</td>
+                                <td>{{ log.role ?: 'Unknown' }}</td>
+                                <td>{{ log.note ?: '-' }}</td>
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td colspan="9" class="text-center">No stock log entries found.</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        function fetchAndSwapStock() {
+            fetch(window.location.href)
+                .then(response => response.text())
+                .then(htmlString => {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(htmlString, 'text/html');
+                    
+                    const incomingContainer = doc.getElementById('live-stock-container');
+                    const currentContainer = document.getElementById('live-stock-container');
+                    
+                    if (incomingContainer && currentContainer) {
+                        const wasDifferent = currentContainer.innerHTML.trim() !== incomingContainer.innerHTML.trim();
+                        if (wasDifferent) {
+                            currentContainer.innerHTML = incomingContainer.innerHTML;
+                        }
+                    }
+                })
+                .catch(error => console.warn("Stock sync missed: ", error));
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Polling every 4 seconds (less frequent for logs)
+            setInterval(fetchAndSwapStock, 4000);
+
+            // WebSocket Turbo
+            const SOCKET_URL = 'ws://localhost:8080';
+            let socket;
+
+            function connectWebSocket() {
+                socket = new WebSocket(SOCKET_URL);
+                socket.onmessage = (event) => {
+                    const data = JSON.parse(event.data);
+                    // Stock changes often trigger order.created or other types
+                    if (data.type === 'order.created' || data.type === 'order.updated' || data.type === 'stock.updated') {
+                        fetchAndSwapStock();
+                    }
+                };
+                socket.onclose = () => setTimeout(connectWebSocket, 5000);
+            }
+            connectWebSocket();
+        });
+    </script>
 {% endblock %}
