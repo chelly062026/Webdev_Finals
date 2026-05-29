@@ -531,7 +531,7 @@
             <div class="quick-actions">
                 <div class="quick-actions-title">Recent Orders</div>
                 {% if recentOrders is defined and recentOrders|length > 0 %}
-                    <ul style="list-style:none; padding:0; margin:0;">
+                    <ul id="live-orders-list" style="list-style:none; padding:0; margin:0;">
                         {% for order in recentOrders %}
                             <li>
                                 <div class="order-info">
@@ -573,6 +573,30 @@
 <script src="https://unpkg.com/feather-icons/dist/feather.min.js"></script>
 <script>
     feather.replace();
+
+    // LIVE REFRESH BYPASS SCRIPT
+    function fetchAndSwapOrders() {
+        // Fetch the current page background layout completely
+        fetch(window.location.href)
+            .then(response => response.text())
+            .then(htmlString => {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(htmlString, 'text/html');
+                
+                // Track down the container variants
+                const incomingOrdersList = doc.getElementById('live-orders-list');
+                const currentOrdersList = document.getElementById('live-orders-list');
+                
+                if (incomingOrdersList && currentOrdersList) {
+                    // Update only the order entries inside the viewport
+                    currentOrdersList.innerHTML = incomingOrdersList.innerHTML;
+                }
+            })
+            .catch(error => console.warn("Live order sync missed: ", error));
+    }
+
+    // Runs silently behind the scenes every 5 seconds
+    setInterval(fetchAndSwapOrders, 5000);
 </script>
 
 {% endblock %}
