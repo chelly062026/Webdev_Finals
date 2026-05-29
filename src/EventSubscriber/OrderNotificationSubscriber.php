@@ -54,7 +54,7 @@ class OrderNotificationSubscriber implements EventSubscriberInterface
             $total = $order->getTotalAmount() ?? 0;
             $customer = $order->getCustomer() ? $order->getCustomer()->getName() : 'Someone';
             
-            $this->httpClient->request('POST', $this->websocketUrl, [
+            $response = $this->httpClient->request('POST', $this->websocketUrl, [
                 'json' => [
                     'type' => $type,
                     'title' => 'Order Update! 🛍️',
@@ -68,8 +68,15 @@ class OrderNotificationSubscriber implements EventSubscriberInterface
                     ]
                 ],
             ]);
+
+            // Optional: Log status for debugging
+            if ($response->getStatusCode() !== 200) {
+                error_log("WebSocket notification failed with status: " . $response->getStatusCode());
+            } else {
+                error_log("WebSocket notification sent successfully for order #" . $order->getId());
+            }
         } catch (\Exception $e) {
-            // Silently fail or log the error
+            error_log("WebSocket notification error: " . $e->getMessage());
         }
     }
 }

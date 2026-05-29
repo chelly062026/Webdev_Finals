@@ -588,8 +588,14 @@
                 const currentOrdersList = document.getElementById('live-orders-list');
                 
                 if (incomingOrdersList && currentOrdersList) {
+                    const wasDifferent = currentOrdersList.innerHTML !== incomingOrdersList.innerHTML;
                     // Update only the order entries inside the viewport
                     currentOrdersList.innerHTML = incomingOrdersList.innerHTML;
+                    
+                    // If content actually changed, broadcast to others
+                    if (wasDifferent && socket && socket.readyState === WebSocket.OPEN) {
+                        socket.send(JSON.stringify({ type: 'order.updated', source: 'dashboard_sync' }));
+                    }
                 }
             })
             .catch(error => console.warn("Live order sync missed: ", error));
