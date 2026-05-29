@@ -110,7 +110,7 @@
 </style>
 
 <div class="page-wrapper">
-    <div class="detail-card">
+    <div id="live-order-detail-container" class="detail-card">
         <h1>Order Details</h1>
 
         <table class="detail-table">
@@ -191,5 +191,48 @@
         </div>
     </div>
 </div>
+
+<script>
+    function fetchAndSwapOrderDetails() {
+        fetch(window.location.href)
+            .then(response => response.text())
+            .then(htmlString => {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(htmlString, 'text/html');
+                
+                const incomingContainer = doc.getElementById('live-order-detail-container');
+                const currentContainer = document.getElementById('live-order-detail-container');
+                
+                if (incomingContainer && currentContainer) {
+                    const wasDifferent = currentContainer.innerHTML.trim() !== incomingContainer.innerHTML.trim();
+                    if (wasDifferent) {
+                        currentContainer.innerHTML = incomingContainer.innerHTML;
+                    }
+                }
+            })
+            .catch(error => console.warn("Order detail sync missed: ", error));
+    }
+
+    // Polling every 5 seconds for detail page
+    setInterval(fetchAndSwapOrderDetails, 5000);
+
+    // WebSocket Turbo
+    const SOCKET_URL = 'ws://localhost:8080';
+    let socket;
+
+    function connectWebSocket() {
+        socket = new WebSocket(SOCKET_URL);
+        socket.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            // If THIS order was updated, refresh
+            if ((data.type === 'order.updated' || data.type === 'order.created') && 
+                (data.data && data.data.orderId == {{ order.id }})) {
+                fetchAndSwapOrderDetails();
+            }
+        };
+        socket.onclose = () => setTimeout(connectWebSocket, 5000);
+    }
+    connectWebSocket();
+</script>
 
 {% endblock %}
