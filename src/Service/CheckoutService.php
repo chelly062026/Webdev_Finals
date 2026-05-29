@@ -4,7 +4,9 @@ namespace App\Service;
 
 use App\Entity\Customer;
 use App\Entity\Order;
+use App\Entity\StockLog;
 use App\Entity\User;
+use App\Entity\Product;
 use App\Repository\CustomerRepository;
 use App\Repository\ProductRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -114,7 +116,24 @@ class CheckoutService
 
             $stock = $product->getStock();
             if ($stock !== null) {
-                $product->setStock(max(0, $stock - $quantity));
+                $originalStock = $stock;
+                $newStock = max(0, $stock - $quantity);
+                $product->setStock($newStock);
+
+                // Create StockLog entry
+                $stockLog = new StockLog();
+                $stockLog->setProduct($product);
+                $stockLog->setUser($user);
+                $stockLog->setUsername($user->getUsername() ?? $user->getUserIdentifier());
+                $roles = $user->getRoles();
+                $stockLog->setRole($roles ? $roles[0] : 'ROLE_USER');
+                $stockLog->setAction('ORDER_PLACEMENT');
+                $stockLog->setQuantityBefore($originalStock);
+                $stockLog->setQuantityAfter($newStock);
+                $stockLog->setChangeAmount(-$quantity);
+                $stockLog->setNote('Order #' . $order->getId() . ' placed via mobile/checkout');
+
+                $this->entityManager->persist($stockLog);
             }
         }
 
