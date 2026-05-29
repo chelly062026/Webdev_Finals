@@ -597,6 +597,40 @@
 
     // Runs silently behind the scenes every 5 seconds
     setInterval(fetchAndSwapOrders, 5000);
+
+    // REAL-TIME WEBSOCKET INTEGRATION
+    const SOCKET_URL = 'ws://localhost:8080';
+    let socket;
+
+    function connectWebSocket() {
+        socket = new WebSocket(SOCKET_URL);
+        
+        socket.onopen = () => {
+            console.log('Connected to Dashboard WebSocket');
+        };
+
+        socket.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            console.log('Dashboard received:', data);
+            
+            // If any order event occurs, refresh the list immediately
+            if (data.type === 'order.created' || data.type === 'order.updated' || data.type === 'orders.updated') {
+                console.log('New order activity detected, refreshing dashboard...');
+                fetchAndSwapOrders();
+            }
+        };
+
+        socket.onclose = () => {
+            console.log('Dashboard WebSocket disconnected. Reconnecting...');
+            setTimeout(connectWebSocket, 5000);
+        };
+
+        socket.onerror = (error) => {
+            console.error('Dashboard WebSocket error:', error);
+        };
+    }
+
+    connectWebSocket();
 </script>
 
 {% endblock %}

@@ -13,21 +13,31 @@ class OrderNotificationSubscriber implements EventSubscriberInterface
     private HttpClientInterface $httpClient;
     private string $websocketUrl;
 
-    public function __construct(HttpClientInterface $httpClient)
+    public function __construct(HttpClientInterface $httpClient, string $websocketNotifyUrl)
     {
         $this->httpClient = $httpClient;
-        // The Node.js server address
-        $this->websocketUrl = 'http://localhost:8080/notify';
+        $this->websocketUrl = $websocketNotifyUrl;
     }
 
     public function getSubscribedEvents(): array
     {
         return [
             Events::postPersist,
+            Events::postUpdate,
         ];
     }
 
     public function postPersist(LifecycleEventArgs $args): void
+    {
+        $this->handleEvent($args, 'order.created');
+    }
+
+    public function postUpdate(LifecycleEventArgs $args): void
+    {
+        $this->handleEvent($args, 'order.updated');
+    }
+
+    private function handleEvent(LifecycleEventArgs $args, string $type): void
     {
         $entity = $args->getObject();
 
@@ -35,10 +45,10 @@ class OrderNotificationSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $this->sendNotification($entity);
+        $this->sendNotification($entity, $type);
     }
 
-    private function sendNotification(Order $order): void
+    private function sendNotification(Order $order, string $type): void
     {
         try {
             $total = $order->getTotalAmount() ?? 0;
@@ -46,17 +56,20 @@ class OrderNotificationSubscriber implements EventSubscriberInterface
             
             $this->httpClient->request('POST', $this->websocketUrl, [
                 'json' => [
-                    'title' => 'New Order Received! 🛍️',
-                    'body' => sprintf('%s just placed an order for ₱%s.', $customer, number_format($total, 2)),
+                    'type' => $type,
+                    'title' => 'Order Update! 🛍️',
+                    'body' => $type === 'order.created' 
+                        ? sprintf('%s just placed an order for ₱%s.', $customer, number_format((float)$total, 2))
+                        : sprintf('Order #%d status updated.', $order->getId()),
                     'data' => [
                         'orderId' => $order->getId(),
-                        'type' => 'new_order'
+                        'type' => $type,
+                        'status' => $order->getStatus()
                     ]
                 ],
             ]);
         } catch (\Exception $e) {
             // Silently fail or log the error
-            // In a real app, you might want to use Messenger to retry
         }
     }
 }

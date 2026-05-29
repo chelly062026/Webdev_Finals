@@ -13,6 +13,22 @@ wss.on('connection', (ws) => {
   
   ws.on('message', (message) => {
     console.log(`Received message: ${message}`);
+    
+    // Broadcast received message to all other clients
+    let parsed;
+    try {
+      parsed = JSON.parse(message);
+    } catch (e) {
+      parsed = message.toString();
+    }
+
+    const payload = typeof parsed === 'string' ? parsed : JSON.stringify(parsed);
+    
+    wss.clients.forEach((client) => {
+      if (client !== ws && client.readyState === WebSocket.OPEN) {
+        client.send(payload);
+      }
+    });
   });
 
   ws.on('close', () => {
@@ -22,13 +38,7 @@ wss.on('connection', (ws) => {
 
 // Endpoint for Symfony to trigger a broadcast
 app.post('/notify', (req, res) => {
-  const { title, body, data } = req.body;
-  
-  if (!title || !body) {
-    return res.status(400).json({ error: 'Title and body are required' });
-  }
-
-  const notification = JSON.stringify({ title, body, data });
+  const notification = JSON.stringify(req.body);
   
   let count = 0;
   wss.clients.forEach((client) => {
@@ -38,7 +48,7 @@ app.post('/notify', (req, res) => {
     }
   });
 
-  console.log(`Broadcasted notification to ${count} clients: ${title}`);
+  console.log(`Broadcasted notification to ${count} clients.`);
   res.json({ success: true, clientsNotified: count });
 });
 
