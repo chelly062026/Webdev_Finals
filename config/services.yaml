@@ -23,7 +23,7 @@ services:
         arguments:
             $projectDir: '%kernel.project_dir%'
 
-    App\EventSubscriber\WebSocketNotificationSubscriber:
+    App\EventSubscriber\OrderNotificationSubscriber:
         arguments:
             $websocketNotifyUrl: '%env(WEBSOCKET_NOTIFY_URL)%'
 
